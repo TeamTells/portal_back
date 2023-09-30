@@ -1,0 +1,66 @@
+openapi: 3.0.3
+info:
+  title: Team tells api
+  version: 1.0.0
+paths:
+  /authorization/salt/{login}:
+    get:
+      description: get salt by login
+      parameters:
+        - name: login
+          in: path
+          description: login of user
+          required: true
+          schema:
+            type: string
+      operationId: GetSaltByLogin
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/saltResponse'
+        '404':
+          description: User not found
+  /authorization/login:
+    post:
+      operationId: Login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/loginRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/tokenResponse'
+        '404':
+          description: User with login and password not found
+
+
+components:
+  schemas:
+    saltResponse:
+      type: object
+      properties:
+        salt:
+          type: string
+    loginRequest:
+      type: object
+      properties:
+        login:
+          type: string
+        password:
+          type: string
+    tokenResponse:
+      type: object
+      properties:
+        accessJwtToken:
+          type: string
+        refreshToken:
+          type: string
