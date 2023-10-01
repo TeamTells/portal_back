@@ -19,7 +19,7 @@ type Service interface {
 }
 
 func NewService(repository Repository, tokenService token.Service) Service {
-	return &service{repository: repository}
+	return &service{repository: repository, tokenService: tokenService}
 }
 
 type service struct {

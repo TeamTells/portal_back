@@ -62,5 +62,5 @@ func createAccessToken(userID int) (string, error) {
 		"exp":  time.Now().Add(30 * time.Minute),
 		"user": userID,
 	}
-	return jwt.NewWithClaims(jwt.SigningMethodHS256, claims).SignedString("secret")
+	return jwt.NewWithClaims(jwt.SigningMethodHS256, claims).SignedString([]byte("secret"))
 }

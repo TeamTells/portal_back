@@ -17,7 +17,7 @@ type tokenRepository struct {
 func (r *tokenRepository) GetUserToken(ctx context.Context, userID int) (string, error) {
 	query := `
 		SELECT token FROM tokens
-		WHERE user_id = ?
+		WHERE user_id = $1
 	`
 
 	var userToken string
@@ -33,8 +33,8 @@ func (r *tokenRepository) GetUserToken(ctx context.Context, userID int) (string,
 func (r *tokenRepository) UpdateToken(ctx context.Context, token string, userID int) error {
 	query := `
 		UPDATE tokens
-		SET token = ?
-		WHERE user_id = ?
+		SET token = $1
+		WHERE user_id = $2
 	`
 	_, err := r.conn.Exec(ctx, query, token, userID)
 
@@ -44,7 +44,7 @@ func (r *tokenRepository) UpdateToken(ctx context.Context, token string, userID 
 func (r *tokenRepository) SaveToken(ctx context.Context, token string, userID int) error {
 	query := `
 		INSERT INTO tokens (user_id, token)
-		VALUES (?, ?)
+		VALUES ($1, $2)
 	`
 	_, err := r.conn.Exec(ctx, query, userID, token)
 

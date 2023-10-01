@@ -2,7 +2,6 @@ package transport
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"portal_back/api/frontendapi"
@@ -40,21 +39,20 @@ func (s *frontendServer) GetSaltByLogin(w http.ResponseWriter, r *http.Request, 
 }
 
 func (s *frontendServer) Login(w http.ResponseWriter, r *http.Request) {
-
-	x, _ := ioutil.ReadAll(r.Body)
-	fmt.Println(string(x))
-	d := json.NewDecoder(r.Body)
-	var log frontendapi.LoginRequest
-	err := d.Decode(&log)
+	reqBody, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+	}
+	var loginReq frontendapi.LoginRequest
+	err = json.Unmarshal(reqBody, &loginReq)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 	}
-
 	tokens, err := s.authService.Login(
 		r.Context(),
 		auth.LoginData{
-			Login:    *log.Login,
-			Password: *log.Password,
+			Login:    *loginReq.Login,
+			Password: *loginReq.Password,
 		})
 
 	if err == auth.ErrUserNotFound {
@@ -65,7 +63,7 @@ func (s *frontendServer) Login(w http.ResponseWriter, r *http.Request) {
 
 	resp, err := json.Marshal(frontendapi.TokenResponse{
 		AccessJwtToken: &tokens.AccessToken,
-		RefreshToken:   &tokens.AccessToken,
+		RefreshToken:   &tokens.RefreshToken,
 	})
 
 	if err != nil {
