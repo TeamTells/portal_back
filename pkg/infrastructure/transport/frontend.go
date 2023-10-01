@@ -59,20 +59,23 @@ func (s *frontendServer) Login(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusNotFound)
 	} else if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-	}
+	} else if err == nil {
 
-	resp, err := json.Marshal(frontendapi.TokenResponse{
-		AccessJwtToken: &tokens.AccessToken,
-		RefreshToken:   &tokens.RefreshToken,
-	})
+		resp, err := json.Marshal(frontendapi.TokenResponse{
+			AccessJwtToken: &tokens.AccessToken,
+			RefreshToken:   &tokens.RefreshToken,
+		})
 
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-	}
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+		}
 
-	w.Header().Set("Content-Type", "application/json")
-	_, err = w.Write(resp)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
+		w.Header().Set("Content-Type", "application/json")
+		_, err = w.Write(resp)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+		}
+
+		w.WriteHeader(http.StatusOK)
 	}
 }
