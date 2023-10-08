@@ -22,7 +22,7 @@ func main() {
 
 	authRepo := sql.NewAuthRepository(conn)
 	authService := auth.NewService(authRepo, tokenService)
-	server := transport.NewServer(authService)
+	server := transport.NewServer(authService, tokenService)
 
 	http.Handle("/", frontendapi.Handler(server))
 

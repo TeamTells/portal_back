@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-var ErrTokenForUserNotFound = errors.New("token for user not found")
+var ErrUserWithTokenNotFound = errors.New("user with token not found")
 
 type Tokens struct {
 	AccessToken  string
@@ -17,6 +17,8 @@ type Tokens struct {
 
 type Service interface {
 	GenerateTokensForUser(ctx context.Context, userID int) (Tokens, error)
+	RefreshToken(ctx context.Context, refreshToken string) (Tokens, error)
+	RemoveToken(ctx context.Context, token string) error
 }
 
 func NewService(repo Repository) Service {
@@ -45,9 +47,40 @@ func (s *service) GenerateTokensForUser(ctx context.Context, userID int) (Tokens
 	}, nil
 }
 
+func (s *service) RefreshToken(ctx context.Context, refreshToken string) (Tokens, error) {
+	userID, err := s.repository.GetUserByToken(ctx, refreshToken)
+	if err != nil {
+		return Tokens{}, err
+	}
+
+	newAccessToken, err := createAccessToken(userID)
+	if err != nil {
+		return Tokens{}, err
+	}
+
+	newRefreshToken := uuid.New().String()
+	err = s.repository.UpdateToken(ctx, newRefreshToken, userID)
+	if err != nil {
+		return Tokens{}, err
+	}
+
+	return Tokens{
+		AccessToken:  newAccessToken,
+		RefreshToken: newRefreshToken,
+	}, nil
+}
+
+func (s *service) RemoveToken(ctx context.Context, token string) error {
+	_, err := s.repository.GetUserByToken(ctx, token)
+	if err != nil {
+		return err
+	}
+	return s.repository.RemoveToken(ctx, token)
+}
+
 func (s *service) saveUserToken(ctx context.Context, userID int, token string) error {
 	_, err := s.repository.GetUserToken(ctx, userID)
-	if err == ErrTokenForUserNotFound {
+	if err == ErrUserWithTokenNotFound {
 		err = s.repository.SaveToken(ctx, token, userID)
 	}
 	if err != nil {

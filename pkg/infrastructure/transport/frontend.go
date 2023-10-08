@@ -6,14 +6,17 @@ import (
 	"net/http"
 	"portal_back/api/frontendapi"
 	"portal_back/pkg/app/auth"
+	"portal_back/pkg/app/token"
+	"time"
 )
 
-func NewServer(authService auth.Service) frontendapi.ServerInterface {
-	return &frontendServer{authService: authService}
+func NewServer(authService auth.Service, tokenService token.Service) frontendapi.ServerInterface {
+	return &frontendServer{authService: authService, tokenService: tokenService}
 }
 
 type frontendServer struct {
-	authService auth.Service
+	authService  auth.Service
+	tokenService token.Service
 }
 
 func (s *frontendServer) GetSaltByLogin(w http.ResponseWriter, r *http.Request, login string) {
@@ -42,11 +45,13 @@ func (s *frontendServer) Login(w http.ResponseWriter, r *http.Request) {
 	reqBody, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
+		return
 	}
 	var loginReq frontendapi.LoginRequest
 	err = json.Unmarshal(reqBody, &loginReq)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
+		return
 	}
 	tokens, err := s.authService.Login(
 		r.Context(),
@@ -61,6 +66,8 @@ func (s *frontendServer) Login(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 	} else if err == nil {
 
+		s.setRefreshTokenToCookie(w, tokens.RefreshToken)
+
 		resp, err := json.Marshal(frontendapi.TokenResponse{
 			AccessJwtToken: &tokens.AccessToken,
 			RefreshToken:   &tokens.RefreshToken,
@@ -68,14 +75,82 @@ func (s *frontendServer) Login(w http.ResponseWriter, r *http.Request) {
 
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
+			return
 		}
 
 		w.Header().Set("Content-Type", "application/json")
 		_, err = w.Write(resp)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
+			return
 		}
-
-		w.WriteHeader(http.StatusOK)
 	}
+}
+
+func (s *frontendServer) RefreshToken(w http.ResponseWriter, r *http.Request) {
+	cookie, err := r.Cookie("refreshToken")
+	if err != nil {
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+	tokens, err := s.tokenService.RefreshToken(r.Context(), cookie.Value)
+	if err == token.ErrUserWithTokenNotFound {
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	s.setRefreshTokenToCookie(w, tokens.RefreshToken)
+
+	resp, err := json.Marshal(frontendapi.TokenResponse{
+		AccessJwtToken: &tokens.AccessToken,
+		RefreshToken:   &tokens.RefreshToken,
+	})
+
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	_, err = w.Write(resp)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+	}
+}
+
+func (s *frontendServer) Logout(w http.ResponseWriter, r *http.Request) {
+	cookie, err := r.Cookie("refreshToken")
+	if err != nil {
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+	err = s.authService.Logout(r.Context(), cookie.Value)
+
+	if err == auth.ErrUserNotLogged {
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+}
+
+func (s *frontendServer) setRefreshTokenToCookie(w http.ResponseWriter, token string) {
+	cookie := http.Cookie{
+		Name:     "refreshToken",
+		Value:    token,
+		Path:     "/authorization/",
+		MaxAge:   3600,
+		HttpOnly: true,
+		Secure:   true,
+		SameSite: http.SameSiteLaxMode,
+		Expires:  time.Now().Add(14 * 24 * time.Hour), // 2 weeks
+	}
+	http.SetCookie(w, &cookie)
 }

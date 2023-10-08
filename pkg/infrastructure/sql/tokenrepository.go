@@ -23,11 +23,27 @@ func (r *tokenRepository) GetUserToken(ctx context.Context, userID int) (string,
 	var userToken string
 	err := r.conn.QueryRow(ctx, query, userID).Scan(&userToken)
 	if err == pgx.ErrNoRows {
-		return "", token.ErrTokenForUserNotFound
+		return "", token.ErrUserWithTokenNotFound
 	} else if err != nil {
 		return "", err
 	}
 	return userToken, nil
+}
+
+func (r *tokenRepository) GetUserByToken(ctx context.Context, refreshToken string) (int, error) {
+	query := `
+		SELECT user_id FROM tokens
+		WHERE token = $1
+	`
+
+	var userID int
+	err := r.conn.QueryRow(ctx, query, refreshToken).Scan(&userID)
+	if err == pgx.ErrNoRows {
+		return 0, token.ErrUserWithTokenNotFound
+	} else if err != nil {
+		return 0, err
+	}
+	return userID, nil
 }
 
 func (r *tokenRepository) UpdateToken(ctx context.Context, token string, userID int) error {
@@ -47,6 +63,16 @@ func (r *tokenRepository) SaveToken(ctx context.Context, token string, userID in
 		VALUES ($1, $2)
 	`
 	_, err := r.conn.Exec(ctx, query, userID, token)
+
+	return err
+}
+
+func (r *tokenRepository) RemoveToken(ctx context.Context, token string) error {
+	query := `
+		DELETE FROM tokens
+		WHERE token = $1
+	`
+	_, err := r.conn.Exec(ctx, query, token)
 
 	return err
 }

@@ -7,6 +7,7 @@ import (
 )
 
 var ErrUserNotFound = errors.New("user not found")
+var ErrUserNotLogged = errors.New("user not logged")
 
 type LoginData struct {
 	Login    string
@@ -16,6 +17,7 @@ type LoginData struct {
 type Service interface {
 	GetSaltByLogin(ctx context.Context, login string) (string, error)
 	Login(ctx context.Context, logData LoginData) (token.Tokens, error)
+	Logout(ctx context.Context, token string) error
 }
 
 func NewService(repository Repository, tokenService token.Service) Service {
@@ -46,4 +48,12 @@ func (s *service) Login(ctx context.Context, logData LoginData) (token.Tokens, e
 	}
 
 	return s.tokenService.GenerateTokensForUser(ctx, userID)
+}
+
+func (s *service) Logout(ctx context.Context, userToken string) error {
+	err := s.tokenService.RemoveToken(ctx, userToken)
+	if err == token.ErrUserWithTokenNotFound {
+		return ErrUserNotLogged
+	}
+	return err
 }

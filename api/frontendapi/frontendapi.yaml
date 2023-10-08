@@ -41,7 +41,22 @@ paths:
                 $ref: '#/components/schemas/tokenResponse'
         '404':
           description: User with login and password not found
-
+  /authorization/refresh-token:
+    get:
+      operationId: RefreshToken
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/tokenResponse'
+  /authorization/logout:
+    post:
+      operationId: Logout
+      responses:
+        '200':
+          description: OK
 
 components:
   schemas:
