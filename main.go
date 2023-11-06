@@ -2,9 +2,11 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"github.com/jackc/pgx/v5"
 	"log"
 	"net/http"
+	"os"
 	"portal_back/api/frontendapi"
 	"portal_back/pkg/app/auth"
 	"portal_back/pkg/app/token"
@@ -14,7 +16,34 @@ import (
 
 func main() {
 
-	conn, err := pgx.Connect(context.Background(), "postgres://postgres:12345Q@localhost:5432/teamtells")
+	dbUser := os.Getenv("DB_USER")
+	if dbUser == "" {
+		dbUser = "postgres"
+	}
+
+	dbPassword := os.Getenv("DB_PASSWORD")
+	if dbPassword == "" {
+		dbPassword = "password"
+	}
+
+	dbName := os.Getenv("DB_NAME")
+	if dbName == "" {
+		dbName = "app"
+	}
+
+	dbHost := os.Getenv("DB_HOST")
+	if dbHost == "" {
+		dbHost = "localhost"
+	}
+
+	appPort := os.Getenv("BACKEND_PORT")
+	if appPort == "" {
+		appPort = "8080"
+	}
+
+	connStr := fmt.Sprintf("postgres://%s:%s@%s:5432/%s", dbUser, dbPassword, dbHost, dbName)
+
+	conn, err := pgx.Connect(context.Background(), connStr)
 	defer conn.Close(context.Background())
 
 	repo := sql.NewTokenStorage(conn)
@@ -26,7 +55,7 @@ func main() {
 
 	http.Handle("/", frontendapi.Handler(server))
 
-	err = http.ListenAndServe(":8080", nil)
+	err = http.ListenAndServe(":"+appPort, nil)
 	if err != nil {
 		log.Fatal("ListenAndServe: ", err)
 	}
