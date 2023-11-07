@@ -3,10 +3,10 @@ package sql
 import (
 	"context"
 	"github.com/jackc/pgx/v5"
-	"portal_back/pkg/app/token"
+	token2 "portal_back/authentication/impl/pkg/app/token"
 )
 
-func NewTokenStorage(conn *pgx.Conn) token.Repository {
+func NewTokenStorage(conn *pgx.Conn) token2.Repository {
 	return &tokenRepository{conn: conn}
 }
 
@@ -23,7 +23,7 @@ func (r *tokenRepository) GetUserToken(ctx context.Context, userID int) (string,
 	var userToken string
 	err := r.conn.QueryRow(ctx, query, userID).Scan(&userToken)
 	if err == pgx.ErrNoRows {
-		return "", token.ErrUserWithTokenNotFound
+		return "", token2.ErrUserWithTokenNotFound
 	} else if err != nil {
 		return "", err
 	}
@@ -39,7 +39,7 @@ func (r *tokenRepository) GetUserByToken(ctx context.Context, refreshToken strin
 	var userID int
 	err := r.conn.QueryRow(ctx, query, refreshToken).Scan(&userID)
 	if err == pgx.ErrNoRows {
-		return 0, token.ErrUserWithTokenNotFound
+		return 0, token2.ErrUserWithTokenNotFound
 	} else if err != nil {
 		return 0, err
 	}

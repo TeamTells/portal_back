@@ -3,7 +3,7 @@ package auth
 import (
 	"context"
 	"errors"
-	"portal_back/pkg/app/token"
+	"portal_back/authentication/impl/pkg/app/token"
 )
 
 var ErrUserNotFound = errors.New("user not found")

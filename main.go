@@ -5,11 +5,11 @@ import (
 	"github.com/jackc/pgx/v5"
 	"log"
 	"net/http"
-	"portal_back/api/frontendapi"
-	"portal_back/pkg/app/auth"
-	"portal_back/pkg/app/token"
-	"portal_back/pkg/infrastructure/sql"
-	"portal_back/pkg/infrastructure/transport"
+	"portal_back/authentication/impl/api/frontendapi"
+	"portal_back/authentication/impl/pkg/app/auth"
+	"portal_back/authentication/impl/pkg/app/token"
+	sql2 "portal_back/authentication/impl/pkg/infrastructure/sql"
+	"portal_back/authentication/impl/pkg/infrastructure/transport"
 )
 
 func main() {
@@ -17,10 +17,10 @@ func main() {
 	conn, err := pgx.Connect(context.Background(), "postgres://postgres:12345Q@localhost:5432/teamtells")
 	defer conn.Close(context.Background())
 
-	repo := sql.NewTokenStorage(conn)
+	repo := sql2.NewTokenStorage(conn)
 	tokenService := token.NewService(repo)
 
-	authRepo := sql.NewAuthRepository(conn)
+	authRepo := sql2.NewAuthRepository(conn)
 	authService := auth.NewService(authRepo, tokenService)
 	server := transport.NewServer(authService, tokenService)
 
