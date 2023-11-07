@@ -3,10 +3,10 @@ package sql
 import (
 	"context"
 	"github.com/jackc/pgx/v5"
-	auth2 "portal_back/authentication/impl/pkg/app/auth"
+	"portal_back/authentication/impl/app/auth"
 )
 
-func NewAuthRepository(conn *pgx.Conn) auth2.Repository {
+func NewAuthRepository(conn *pgx.Conn) auth.Repository {
 	return &repository{conn: conn}
 }
 
@@ -22,7 +22,7 @@ func (r *repository) GetSaltByLogin(ctx context.Context, login string) (string, 
 	var salt string
 	err := r.conn.QueryRow(ctx, query, login).Scan(&salt)
 	if err == pgx.ErrNoRows {
-		return "", auth2.ErrUserNotFound
+		return "", auth.ErrUserNotFound
 	} else if err != nil {
 		return "", err
 	}
@@ -37,7 +37,7 @@ func (r *repository) GetPasswordByLogin(ctx context.Context, login string) (stri
 	var password string
 	err := r.conn.QueryRow(ctx, query, login).Scan(&password)
 	if err == pgx.ErrNoRows {
-		return "", auth2.ErrUserNotFound
+		return "", auth.ErrUserNotFound
 	} else if err != nil {
 		return "", err
 	}
@@ -52,7 +52,7 @@ func (r *repository) GetUserIDByLogin(ctx context.Context, login string) (int, e
 	var userID int
 	err := r.conn.QueryRow(ctx, query, login).Scan(&userID)
 	if err == pgx.ErrNoRows {
-		return 0, auth2.ErrUserNotFound
+		return 0, auth.ErrUserNotFound
 	} else if err != nil {
 		return 0, err
 	}

@@ -1,6 +1,6 @@
 openapi: 3.0.3
 info:
-  title: Team tells api
+  title: Team tells generated
   version: 1.0.0
 paths:
   /authorization/salt/{login}:
