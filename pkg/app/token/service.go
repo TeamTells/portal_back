@@ -92,7 +92,7 @@ func (s *service) saveUserToken(ctx context.Context, userID int, token string) e
 
 func createAccessToken(userID int) (string, error) {
 	claims := jwt.MapClaims{
-		"exp":  time.Now().Add(30 * time.Minute),
+		"exp":  time.Now().Add(30 * time.Minute).UnixMilli(),
 		"user": userID,
 	}
 	return jwt.NewWithClaims(jwt.SigningMethodHS256, claims).SignedString([]byte("secret"))
