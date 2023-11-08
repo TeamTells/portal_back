@@ -13,9 +13,9 @@ import (
 	"portal_back/authentication/impl/infrastructure/transport"
 )
 
-func InitAuthModule() api.AuthRequestService {
+func InitAuthModule() (api.AuthRequestService, *pgx.Conn) {
+	// move const to environment
 	conn, _ := pgx.Connect(context.Background(), "postgres://postgres:12345Q@localhost:5432/teamtells")
-	defer conn.Close(context.Background())
 
 	repo := sql.NewTokenStorage(conn)
 	tokenService := token.NewService(repo)
@@ -27,5 +27,5 @@ func InitAuthModule() api.AuthRequestService {
 
 	http.Handle("/", frontendapi.Handler(server))
 
-	return authRequestService
+	return authRequestService, conn
 }
