@@ -1,32 +1,14 @@
 package main
 
 import (
-	"context"
-	"github.com/jackc/pgx/v5"
 	"log"
 	"net/http"
-	"portal_back/authentication/impl/app/auth"
-	"portal_back/authentication/impl/app/token"
-	"portal_back/authentication/impl/generated/frontendapi"
-	"portal_back/authentication/impl/infrastructure/sql"
-	"portal_back/authentication/impl/infrastructure/transport"
+	"portal_back/authentication/impl/di"
 )
 
 func main() {
-
-	conn, err := pgx.Connect(context.Background(), "postgres://postgres:12345Q@localhost:5432/teamtells")
-	defer conn.Close(context.Background())
-
-	repo := sql.NewTokenStorage(conn)
-	tokenService := token.NewService(repo)
-
-	authRepo := sql.NewAuthRepository(conn)
-	authService := auth.NewService(authRepo, tokenService)
-	server := transport.NewServer(authService, tokenService)
-
-	http.Handle("/", frontendapi.Handler(server))
-
-	err = http.ListenAndServe(":8080", nil)
+	di.InitAuthModule()
+	err := http.ListenAndServe(":8080", nil)
 	if err != nil {
 		log.Fatal("ListenAndServe: ", err)
 	}
