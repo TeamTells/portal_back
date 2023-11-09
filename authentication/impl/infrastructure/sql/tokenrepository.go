@@ -3,7 +3,7 @@ package sql
 import (
 	"context"
 	"github.com/jackc/pgx/v5"
-	"portal_back/pkg/app/token"
+	"portal_back/authentication/impl/app/token"
 )
 
 func NewTokenStorage(conn *pgx.Conn) token.Repository {

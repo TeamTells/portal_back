@@ -3,7 +3,7 @@ package sql
 import (
 	"context"
 	"github.com/jackc/pgx/v5"
-	"portal_back/pkg/app/auth"
+	"portal_back/authentication/impl/app/auth"
 )
 
 func NewAuthRepository(conn *pgx.Conn) auth.Repository {

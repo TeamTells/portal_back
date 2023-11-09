@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
-	"portal_back/api/frontendapi"
-	"portal_back/pkg/app/auth"
-	"portal_back/pkg/app/token"
+	"portal_back/authentication/impl/app/auth"
+	"portal_back/authentication/impl/app/token"
+	"portal_back/authentication/impl/generated/frontendapi"
 	"time"
 )
 
