@@ -3,7 +3,6 @@ package auth
 import (
 	"context"
 	"errors"
-	"portal_back/authentication/api/model"
 	"portal_back/authentication/impl/app/token"
 )
 
@@ -57,9 +56,4 @@ func (s *service) Logout(ctx context.Context, userToken string) error {
 		return ErrUserNotLogged
 	}
 	return err
-}
-
-func (s *service) isAuthenticated(token string) model.AuthValidationResult {
-	// TODO: not implemented
-	return model.SUCCESS
 }
