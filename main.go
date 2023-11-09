@@ -42,6 +42,8 @@ func main() {
 	}
 
 	connStr := fmt.Sprintf("postgres://%s:%s@%s:5432/%s", dbUser, dbPassword, dbHost, dbName)
+	println(connStr)
+	//conn, err := pgx.Connect(context.Background(), "postgres://postgres:12345Q@localhost:5432/teamtells")
 
 	conn, err := pgx.Connect(context.Background(), connStr)
 	defer conn.Close(context.Background())
