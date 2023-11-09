@@ -3,7 +3,6 @@ package auth
 import (
 	"context"
 	"errors"
-	"portal_back/authentication/api/model"
 	"portal_back/authentication/impl/app/token"
 )
 

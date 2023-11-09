@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 	"net/http"
+	"os"
 	"portal_back/authentication/impl/di"
 )
 
@@ -14,7 +15,12 @@ func InitAppModule() {
 	// можно инжектить в другие модули
 	authService.IsAuthenticated("")
 
-	err := http.ListenAndServe(":8080", nil)
+	appPort := os.Getenv("BACKEND_PORT")
+	if appPort == "" {
+		appPort = "8080"
+	}
+
+	err := http.ListenAndServe(":"+appPort, nil)
 	if err != nil {
 		log.Fatal("ListenAndServe: ", err)
 	}

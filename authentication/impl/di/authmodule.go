@@ -2,8 +2,10 @@ package di
 
 import (
 	"context"
+	"fmt"
 	"github.com/jackc/pgx/v5"
 	"net/http"
+	"os"
 	"portal_back/authentication/api"
 	"portal_back/authentication/impl/app/auth"
 	"portal_back/authentication/impl/app/authrequest"
@@ -14,8 +16,29 @@ import (
 )
 
 func InitAuthModule() (api.AuthRequestService, *pgx.Conn) {
-	// move const to environment
-	conn, _ := pgx.Connect(context.Background(), "postgres://postgres:12345Q@localhost:5432/teamtells")
+	dbUser := os.Getenv("DB_USER")
+	if dbUser == "" {
+		dbUser = "postgres"
+	}
+
+	dbPassword := os.Getenv("DB_PASSWORD")
+	if dbPassword == "" {
+		dbPassword = "password"
+	}
+
+	dbName := os.Getenv("DB_NAME")
+	if dbName == "" {
+		dbName = "app"
+	}
+
+	dbHost := os.Getenv("DB_HOST")
+	if dbHost == "" {
+		dbHost = "localhost"
+	}
+
+	connStr := fmt.Sprintf("postgres://%s:%s@%s:5432/%s", dbUser, dbPassword, dbHost, dbName)
+
+	conn, _ := pgx.Connect(context.Background(), connStr)
 
 	repo := sql.NewTokenStorage(conn)
 	tokenService := token.NewService(repo)
