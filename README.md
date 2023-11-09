@@ -4,6 +4,15 @@
 3. `go mod tidy -v`
 4. `go run main.go`
 
+Configure GoLand run config with the following env vars: 
+- DB_USER
+- DB_PASSWORD
+- DB_NAME
+- DB_HOST
+- BACKEND_PORT
+
+![img.png](img/envVars.png)
+
 Для работы с бд
 1. установить postgres
 2. создать две таблицы

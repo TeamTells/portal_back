@@ -70,7 +70,6 @@ func (s *frontendServer) Login(w http.ResponseWriter, r *http.Request) {
 
 		resp, err := json.Marshal(frontendapi.TokenResponse{
 			AccessJwtToken: &tokens.AccessToken,
-			RefreshToken:   &tokens.RefreshToken,
 		})
 
 		if err != nil {
@@ -107,7 +106,6 @@ func (s *frontendServer) RefreshToken(w http.ResponseWriter, r *http.Request) {
 
 	resp, err := json.Marshal(frontendapi.TokenResponse{
 		AccessJwtToken: &tokens.AccessToken,
-		RefreshToken:   &tokens.RefreshToken,
 	})
 
 	if err != nil {
@@ -145,10 +143,10 @@ func (s *frontendServer) setRefreshTokenToCookie(w http.ResponseWriter, token st
 	cookie := http.Cookie{
 		Name:     "refreshToken",
 		Value:    token,
-		Path:     "/authorization/",
+		Path:     "/",
 		MaxAge:   3600,
 		HttpOnly: true,
-		Secure:   true,
+		Secure:   false,
 		SameSite: http.SameSiteLaxMode,
 		Expires:  time.Now().Add(14 * 24 * time.Hour), // 2 weeks
 	}
