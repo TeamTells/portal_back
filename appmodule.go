@@ -6,11 +6,14 @@ import (
 	"net/http"
 	"os"
 	"portal_back/authentication/impl/di"
+	"portal_back/core/network"
+	di2 "portal_back/documentation/impl/di"
 )
 
 func InitAppModule() {
 	authService, authConn := di.InitAuthModule()
-	//di2.InitDocumentModule()
+	wrapper := network.NewResponseWrapper(authService)
+	di2.InitDocumentModule(wrapper)
 	defer authConn.Close(context.Background())
 
 	// можно инжектить в другие модули

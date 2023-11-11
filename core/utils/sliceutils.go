@@ -1,4 +1,4 @@
-package core
+package utils
 
 func Map[TFrom any, TTo any](list []TFrom, f func(TFrom) TTo) []TTo {
 	vsm := make([]TTo, len(list))
