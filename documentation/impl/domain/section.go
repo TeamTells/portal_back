@@ -5,3 +5,5 @@ type Section struct {
 	Title        string
 	ThumbnailUrl string
 }
+
+const NO_ID = -1

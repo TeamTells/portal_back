@@ -15,6 +15,22 @@ type sectionRepositoryImpl struct {
 	conn *pgx.Conn
 }
 
+func (repository sectionRepositoryImpl) CreateSection(
+	context context.Context,
+	section domain.Section,
+	organizationId int,
+) error {
+	query := `
+		INSERT INTO sections (title, thumbnail_url, company_id)
+		VALUES ($1, $2, $3);
+	`
+
+	rows, error := repository.conn.Query(context, query, section.Title, section.ThumbnailUrl, organizationId)
+	defer rows.Close()
+
+	return error
+}
+
 func (repository sectionRepositoryImpl) GetSections(context context.Context, companyId int) ([]domain.Section, error) {
 	query := `
 		SELECT id, title, thumbnail_url FROM sections 

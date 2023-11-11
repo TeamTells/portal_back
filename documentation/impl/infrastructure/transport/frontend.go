@@ -2,6 +2,7 @@ package transport
 
 import (
 	"encoding/json"
+	"io/ioutil"
 	"net/http"
 	"portal_back/core/network"
 	"portal_back/core/utils"
@@ -20,6 +21,30 @@ func NewFrontendServer(
 type frontendServer struct {
 	sectionService  sections.SectionService
 	responseWrapper network.ResponseWrapper
+}
+
+func (server *frontendServer) CreateSection(w http.ResponseWriter, r *http.Request) {
+	server.responseWrapper.Wrap(w, r, func(info network.RequestInfo) {
+		reqBody, err := ioutil.ReadAll(r.Body)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+		var createSectionRequest frontendapi.CreateSectionRequest
+		err = json.Unmarshal(reqBody, &createSectionRequest)
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+
+		section := domain.Section{
+			Id:           domain.NO_ID,
+			Title:        *createSectionRequest.Title,
+			ThumbnailUrl: *createSectionRequest.ThumbnailUrl,
+		}
+
+		server.sectionService.CreateSection(r.Context(), section, info.CompanyId)
+	})
 }
 
 func (server *frontendServer) GetSections(w http.ResponseWriter, r *http.Request) {

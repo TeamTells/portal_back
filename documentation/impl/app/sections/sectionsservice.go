@@ -7,6 +7,7 @@ import (
 
 type SectionService interface {
 	GetSections(context context.Context, companyId int) ([]domain.Section, error)
+	CreateSection(context context.Context, section domain.Section, organizationId int) error
 }
 
 func NewSectionService(sectionRepository SectionRepository) SectionService {
@@ -17,6 +18,10 @@ type service struct {
 	sectionRepository SectionRepository
 }
 
-func (service service) GetSections(context context.Context, companyId int) ([]domain.Section, error) {
+func (service *service) CreateSection(context context.Context, section domain.Section, organizationId int) error {
+	return service.sectionRepository.CreateSection(context, section, organizationId)
+}
+
+func (service *service) GetSections(context context.Context, companyId int) ([]domain.Section, error) {
 	return service.sectionRepository.GetSections(context, companyId)
 }
