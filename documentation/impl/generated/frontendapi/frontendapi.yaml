@@ -1,0 +1,46 @@
+openapi: 3.0.3
+info:
+  title: Documentation api
+  version: 1.0.0
+paths:
+  /documentation/section/list:
+    get:
+      description: get list of documents
+      operationId: GetSections
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/sectionsResponse'
+        '403':
+          description: Forbidden
+        '401':
+          description: Unauthorized
+components:
+  schemas:
+    sectionsResponse:
+      type: object
+      required:
+        - sections
+      properties:
+        sections:
+          type: array
+          items:
+            $ref: '#/components/schemas/section'
+
+    section:
+      format: Section
+      type: object
+      required:
+        - id
+        - title
+        - thumbnailUrl
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        thumbnailUrl:
+          type: string

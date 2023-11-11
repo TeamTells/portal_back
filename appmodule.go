@@ -10,6 +10,7 @@ import (
 
 func InitAppModule() {
 	authService, authConn := di.InitAuthModule()
+	//di2.InitDocumentModule()
 	defer authConn.Close(context.Background())
 
 	// можно инжектить в другие модули
