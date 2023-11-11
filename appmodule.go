@@ -12,9 +12,12 @@ import (
 
 func InitAppModule() {
 	authService, authConn := di.InitAuthModule()
-	wrapper := network.NewResponseWrapper(authService)
-	di2.InitDocumentModule(wrapper)
 	defer authConn.Close(context.Background())
+
+	wrapper := network.NewResponseWrapper(authService)
+
+	documentConnection := di2.InitDocumentModule(wrapper)
+	defer documentConnection.Close(context.Background())
 
 	// можно инжектить в другие модули
 	authService.IsAuthenticated("")

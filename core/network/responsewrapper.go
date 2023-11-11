@@ -14,7 +14,7 @@ type ResponseWrapper struct {
 	authRequestService api.AuthRequestService
 }
 
-func (wrapper ResponseWrapper) Wrap(w http.ResponseWriter, r *http.Request, block func()) {
+func (wrapper ResponseWrapper) Wrap(w http.ResponseWriter, r *http.Request, block func(RequestInfo)) {
 	authResult := wrapper.authRequestService.IsAuthenticated(GetAccessTokenFromHeader(r))
 	if authResult == model.NOTFOUND {
 		w.WriteHeader(http.StatusForbidden)
@@ -24,6 +24,21 @@ func (wrapper ResponseWrapper) Wrap(w http.ResponseWriter, r *http.Request, bloc
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	block()
+	companyId, err := GetCompanyIdFromHeader(r)
+
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+	}
+
+	userId, err := GetUserIdFromHeader(r)
+
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+	}
+
+	w.Header().Set(ContentTypeHeader, ApplicationJsonType)
+	block(RequestInfo{
+		CompanyId: companyId,
+		UserId:    userId,
+	})
 }

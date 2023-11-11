@@ -23,10 +23,10 @@ type frontendServer struct {
 }
 
 func (server *frontendServer) GetSections(w http.ResponseWriter, r *http.Request) {
-	server.responseWrapper.Wrap(w, r, func() {
-		sections, error := server.sectionService.GetSections()
+	server.responseWrapper.Wrap(w, r, func(info network.RequestInfo) {
+		sections, error := server.sectionService.GetSections(r.Context(), info.CompanyId)
 		if error != nil {
-			w.WriteHeader(http.StatusForbidden)
+			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 

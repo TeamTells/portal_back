@@ -10,6 +10,7 @@ Configure GoLand run config with the following env vars:
 - DB_NAME
 - DB_HOST
 - BACKEND_PORT
+- DB_DOCUMENTATION_NAME
 
 ![img.png](img/envVars.png)
 
@@ -32,3 +33,14 @@ id serial primary key,
 user_id integer NOT NULL,
 token character varying(256) NOT NULL
 );
+```
+```
+3. Создать таблицы для документации
+CREATE TABLE sections
+(
+id serial primary key,
+title character varying(256) NOT NULL,
+thumbnail_url character varying(256) NOT NULL,
+company_id integer NOT NULL
+);
+```
