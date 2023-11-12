@@ -6,14 +6,14 @@ import (
 	"github.com/jackc/pgx/v5"
 	"net/http"
 	"os"
-	"portal_back/core/network"
+	"portal_back/authentication/api/internalapi"
 	frontendapi "portal_back/documentation/api/frontend"
 	"portal_back/documentation/impl/app/sections"
 	"portal_back/documentation/impl/infrastructure/sql"
 	"portal_back/documentation/impl/infrastructure/transport"
 )
 
-func InitDocumentModule(wrapper network.ResponseWrapper) *pgx.Conn {
+func InitDocumentModule(authRequestService internalapi.AuthRequestService) *pgx.Conn {
 	dbUser := os.Getenv("DB_USER")
 	if dbUser == "" {
 		dbUser = "postgres"
@@ -39,7 +39,7 @@ func InitDocumentModule(wrapper network.ResponseWrapper) *pgx.Conn {
 
 	sectionRepository := sql.NewSectionRepository(conn)
 	service := sections.NewSectionService(sectionRepository)
-	server := transport.NewFrontendServer(service, wrapper)
+	server := transport.NewFrontendServer(service, authRequestService)
 	http.Handle("/documentation/", frontendapi.Handler(server))
 	return conn
 }

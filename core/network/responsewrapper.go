@@ -1,21 +1,20 @@
 package network
 
 import (
+	"encoding/json"
+	"io/ioutil"
 	"net/http"
 	"portal_back/authentication/api/internalapi"
 	"portal_back/authentication/api/internalapi/model"
 )
 
-func NewResponseWrapper(authRequestService internalapi.AuthRequestService) ResponseWrapper {
-	return ResponseWrapper{authRequestService: authRequestService}
-}
-
-type ResponseWrapper struct {
-	authRequestService internalapi.AuthRequestService
-}
-
-func (wrapper ResponseWrapper) Wrap(w http.ResponseWriter, r *http.Request, block func(RequestInfo)) {
-	authResult := wrapper.authRequestService.IsAuthenticated(GetAccessTokenFromHeader(r))
+func Wrap(
+	authRequestService internalapi.AuthRequestService,
+	w http.ResponseWriter,
+	r *http.Request,
+	block func(RequestInfo),
+) {
+	authResult := authRequestService.IsAuthenticated(GetAccessTokenFromHeader(r))
 	if authResult == model.NOTFOUND {
 		w.WriteHeader(http.StatusForbidden)
 		return
@@ -42,5 +41,29 @@ func (wrapper ResponseWrapper) Wrap(w http.ResponseWriter, r *http.Request, bloc
 	block(RequestInfo{
 		CompanyId: companyId,
 		UserId:    userId,
+	})
+}
+
+func WrapWithBody[TBodyObj any](
+	authRequestService internalapi.AuthRequestService,
+	w http.ResponseWriter,
+	r *http.Request,
+	block func(RequestInfo, TBodyObj),
+) {
+	Wrap(authRequestService, w, r, func(info RequestInfo) {
+		reqBody, err := ioutil.ReadAll(r.Body)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		var request TBodyObj
+		err = json.Unmarshal(reqBody, &request)
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+
+		block(info, request)
 	})
 }

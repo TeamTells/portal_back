@@ -2,8 +2,8 @@ package transport
 
 import (
 	"encoding/json"
-	"io/ioutil"
 	"net/http"
+	"portal_back/authentication/api/internalapi"
 	"portal_back/core/network"
 	"portal_back/core/utils"
 	"portal_back/documentation/api/frontend"
@@ -13,18 +13,18 @@ import (
 
 func NewFrontendServer(
 	sectionService sections.SectionService,
-	responseWrapper network.ResponseWrapper,
+	authRequestService internalapi.AuthRequestService,
 ) frontendapi.ServerInterface {
-	return &frontendServer{sectionService: sectionService, responseWrapper: responseWrapper}
+	return &frontendServer{sectionService: sectionService, authRequestService: authRequestService}
 }
 
 type frontendServer struct {
-	sectionService  sections.SectionService
-	responseWrapper network.ResponseWrapper
+	sectionService     sections.SectionService
+	authRequestService internalapi.AuthRequestService
 }
 
 func (server *frontendServer) GetSections(w http.ResponseWriter, r *http.Request) {
-	server.responseWrapper.Wrap(w, r, func(info network.RequestInfo) {
+	network.Wrap(server.authRequestService, w, r, func(info network.RequestInfo) {
 		sections, error := server.sectionService.GetSections(r.Context(), info.CompanyId)
 		if error != nil {
 			w.WriteHeader(http.StatusInternalServerError)
@@ -55,23 +55,11 @@ func (server *frontendServer) GetSections(w http.ResponseWriter, r *http.Request
 }
 
 func (server *frontendServer) CreateSection(w http.ResponseWriter, r *http.Request) {
-	server.responseWrapper.Wrap(w, r, func(info network.RequestInfo) {
-		reqBody, err := ioutil.ReadAll(r.Body)
-		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-		var createSectionRequest frontendapi.CreateSectionRequest
-		err = json.Unmarshal(reqBody, &createSectionRequest)
-		if err != nil {
-			w.WriteHeader(http.StatusBadRequest)
-			return
-		}
-
+	network.WrapWithBody(server.authRequestService, w, r, func(info network.RequestInfo, request frontendapi.CreateSectionRequest) {
 		section := domain.Section{
 			Id:           domain.NO_ID,
-			Title:        *createSectionRequest.Title,
-			ThumbnailUrl: *createSectionRequest.ThumbnailUrl,
+			Title:        *request.Title,
+			ThumbnailUrl: *request.ThumbnailUrl,
 		}
 
 		server.sectionService.CreateSection(r.Context(), section, info.CompanyId)
@@ -79,17 +67,7 @@ func (server *frontendServer) CreateSection(w http.ResponseWriter, r *http.Reque
 }
 
 func (server *frontendServer) UpdateIsFavoriteSection(w http.ResponseWriter, r *http.Request) {
-	reqBody, err := ioutil.ReadAll(r.Body)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-	var favoriteRequest frontendapi.FavoriteRequest
-	err = json.Unmarshal(reqBody, &favoriteRequest)
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-
-	server.sectionService.UpdateIsFavoriteSection(r.Context(), *favoriteRequest.SectionId, *favoriteRequest.IsFavorite)
+	network.WrapWithBody(server.authRequestService, w, r, func(info network.RequestInfo, request frontendapi.FavoriteRequest) {
+		server.sectionService.UpdateIsFavoriteSection(r.Context(), *request.SectionId, *request.IsFavorite)
+	})
 }
