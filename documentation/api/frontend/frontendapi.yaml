@@ -1,0 +1,102 @@
+openapi: 3.0.3
+info:
+  title: Documentation api
+  version: 1.0.0
+paths:
+  /documentation/section/list:
+    get:
+      description: get list of sections
+      operationId: GetSections
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/sectionsResponse'
+        '403':
+          description: Forbidden
+        '401':
+          description: Unauthorized
+
+  /documentation/section/create:
+    post:
+      description: create section
+      operationId: CreateSection
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/createSectionRequest'
+      responses:
+        '200':
+          description: OK
+        '403':
+          description: Forbidden
+        '401':
+          description: Unauthorized
+
+  /documentation/section/favorite:
+    post:
+      description: create section
+      operationId: UpdateIsFavoriteSection
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/favoriteRequest'
+      responses:
+        '200':
+          description: OK
+        '403':
+          description: Forbidden
+        '401':
+          description: Unauthorized
+
+components:
+  schemas:
+    sectionsResponse:
+      type: object
+      required:
+        - sections
+      properties:
+        sections:
+          type: array
+          items:
+            $ref: '#/components/schemas/section'
+
+    section:
+      format: Section
+      type: object
+      required:
+        - id
+        - title
+        - thumbnailUrl
+        - isFavorite
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        thumbnailUrl:
+          type: string
+        isFavorite:
+          type: boolean
+
+    createSectionRequest:
+      type: object
+      properties:
+        title:
+          type: string
+        thumbnailUrl:
+          type: string
+
+    favoriteRequest:
+      type: object
+      properties:
+        isFavorite:
+          type: boolean
+        sectionId:
+          type: integer

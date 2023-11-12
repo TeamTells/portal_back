@@ -8,7 +8,7 @@ RUN go mod download
 RUN go get github.com/deepmap/oapi-codegen/cmd/oapi-codegen
 RUN go install github.com/deepmap/oapi-codegen/cmd/oapi-codegen
 COPY . .
-RUN oapi-codegen -generate gorilla,types api/frontendapi/frontendapi.yaml > api/frontendapi/frontendapi.gen.go
+RUN oapi-codegen -generate gorilla,types api/frontend/frontend.yaml > api/frontend/frontend.gen.go
 RUN CGO_ENABLED=0 go build -o app -buildvcs=false main.go
 
 # Stage 2: Runtime

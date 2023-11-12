@@ -1,11 +1,11 @@
 package authrequest
 
 import (
-	"portal_back/authentication/api"
-	"portal_back/authentication/api/model"
+	"portal_back/authentication/api/internalapi"
+	"portal_back/authentication/api/internalapi/model"
 )
 
-func NewService() api.AuthRequestService {
+func NewService() internalapi.AuthRequestService {
 	return &service{}
 }
 
