@@ -23,6 +23,37 @@ type frontendServer struct {
 	responseWrapper network.ResponseWrapper
 }
 
+func (server *frontendServer) GetSections(w http.ResponseWriter, r *http.Request) {
+	server.responseWrapper.Wrap(w, r, func(info network.RequestInfo) {
+		sections, error := server.sectionService.GetSections(r.Context(), info.CompanyId)
+		if error != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		sectionJson := utils.Map(sections, func(section domain.Section) frontendapi.Section {
+			return frontendapi.Section{
+				Id:           section.Id,
+				ThumbnailUrl: section.ThumbnailUrl,
+				Title:        section.Title,
+				IsFavorite:   section.IsFavorite,
+			}
+		})
+
+		response, error := json.Marshal(frontendapi.SectionsResponse{Sections: sectionJson})
+		if error != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		_, error = w.Write(response)
+		if error != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+	})
+}
+
 func (server *frontendServer) CreateSection(w http.ResponseWriter, r *http.Request) {
 	server.responseWrapper.Wrap(w, r, func(info network.RequestInfo) {
 		reqBody, err := ioutil.ReadAll(r.Body)
@@ -47,31 +78,18 @@ func (server *frontendServer) CreateSection(w http.ResponseWriter, r *http.Reque
 	})
 }
 
-func (server *frontendServer) GetSections(w http.ResponseWriter, r *http.Request) {
-	server.responseWrapper.Wrap(w, r, func(info network.RequestInfo) {
-		sections, error := server.sectionService.GetSections(r.Context(), info.CompanyId)
-		if error != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			return
-		}
+func (server *frontendServer) UpdateIsFavoriteSection(w http.ResponseWriter, r *http.Request) {
+	reqBody, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	var favoriteRequest frontendapi.FavoriteRequest
+	err = json.Unmarshal(reqBody, &favoriteRequest)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
 
-		sectionJson := utils.Map(sections, func(section domain.Section) frontendapi.Section {
-			return frontendapi.Section{
-				Id:           section.Id,
-				ThumbnailUrl: section.ThumbnailUrl,
-				Title:        section.Title,
-				IsFavorite:   section.IsFavorite,
-			}
-		})
-
-		response, error := json.Marshal(frontendapi.SectionsResponse{Sections: sectionJson})
-		if error != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-		}
-
-		_, error = w.Write(response)
-		if error != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-		}
-	})
+	server.sectionService.UpdateIsFavoriteSection(r.Context(), *favoriteRequest.SectionId, *favoriteRequest.IsFavorite)
 }

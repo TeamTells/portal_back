@@ -8,6 +8,7 @@ import (
 type SectionService interface {
 	GetSections(context context.Context, companyId int) ([]domain.Section, error)
 	CreateSection(context context.Context, section domain.Section, organizationId int) error
+	UpdateIsFavoriteSection(context context.Context, sectionId int, isFavorite bool) error
 }
 
 func NewSectionService(sectionRepository SectionRepository) SectionService {
@@ -24,4 +25,12 @@ func (service *service) CreateSection(context context.Context, section domain.Se
 
 func (service *service) GetSections(context context.Context, companyId int) ([]domain.Section, error) {
 	return service.sectionRepository.GetSections(context, companyId)
+}
+
+func (service *service) UpdateIsFavoriteSection(
+	context context.Context,
+	sectionId int,
+	isFavorite bool,
+) error {
+	return service.sectionRepository.UpdateIsFavoriteSection(context, sectionId, isFavorite)
 }

@@ -18,6 +18,7 @@ paths:
           description: Forbidden
         '401':
           description: Unauthorized
+
   /documentation/section/create:
     post:
       description: create section
@@ -28,6 +29,24 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/createSectionRequest'
+      responses:
+        '200':
+          description: OK
+        '403':
+          description: Forbidden
+        '401':
+          description: Unauthorized
+
+  /documentation/section/favorite:
+    post:
+      description: create section
+      operationId: UpdateIsFavoriteSection
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/favoriteRequest'
       responses:
         '200':
           description: OK
@@ -73,3 +92,11 @@ components:
           type: string
         thumbnailUrl:
           type: string
+
+    favoriteRequest:
+      type: object
+      properties:
+        isFavorite:
+          type: boolean
+        sectionId:
+          type: integer

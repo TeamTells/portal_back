@@ -55,3 +55,20 @@ func (repository sectionRepositoryImpl) GetSections(context context.Context, com
 
 	return sections, nil
 }
+
+func (repository sectionRepositoryImpl) UpdateIsFavoriteSection(
+	context context.Context,
+	sectionId int,
+	isFavorite bool,
+) error {
+	query := `
+		UPDATE sections
+		SET is_favorite = $1
+		WHERE id = $2;
+	`
+
+	rows, error := repository.conn.Query(context, query, isFavorite, sectionId)
+	defer rows.Close()
+
+	return error
+}
