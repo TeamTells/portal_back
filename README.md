@@ -1,8 +1,9 @@
 Для запуска:
 1. `go install github.com/deepmap/oapi-codegen/v2/cmd/oapi-codegen@latest`
-2. `oapi-codegen -generate gorilla,types authentication/impl/generated/frontendapi/frontendapi.yaml > authentication/impl/generated/frontendapi/frontendapi.gen.go`
-3. `go mod tidy -v`
-4. `go run main.go`
+2. `oapi-codegen -generate gorilla,types authentication/api/frontend/frontendapi.yaml > authentication/api/frontend/frontendapi.gen.go`
+3. `oapi-codegen -generate gorilla,types documentation/api/frontend/frontendapi.yaml > documentation/api/frontend/frontendapi.gen.go`
+4. `go mod tidy -v`
+5. `go run main.go`
 
 Configure GoLand run config with the following env vars: 
 - DB_USER
@@ -34,13 +35,15 @@ user_id integer NOT NULL,
 token character varying(256) NOT NULL
 );
 ```
+
+3. В отдельной бд для документов
 ```
-3. Создать таблицы для документации
 CREATE TABLE sections
 (
 id serial primary key,
 title character varying(256) NOT NULL,
 thumbnail_url character varying(256) NOT NULL,
+is_favorite boolean NOT NULL,
 company_id integer NOT NULL
 );
 ```
