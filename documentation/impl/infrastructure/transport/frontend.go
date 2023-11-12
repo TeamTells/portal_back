@@ -6,9 +6,9 @@ import (
 	"net/http"
 	"portal_back/core/network"
 	"portal_back/core/utils"
+	"portal_back/documentation/api/frontend"
 	"portal_back/documentation/impl/app/sections"
 	"portal_back/documentation/impl/domain"
-	"portal_back/documentation/impl/generated/frontendapi"
 )
 
 func NewFrontendServer(
@@ -60,6 +60,7 @@ func (server *frontendServer) GetSections(w http.ResponseWriter, r *http.Request
 				Id:           section.Id,
 				ThumbnailUrl: section.ThumbnailUrl,
 				Title:        section.Title,
+				IsFavorite:   section.IsFavorite,
 			}
 		})
 

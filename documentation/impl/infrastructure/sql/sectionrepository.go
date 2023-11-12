@@ -21,11 +21,11 @@ func (repository sectionRepositoryImpl) CreateSection(
 	organizationId int,
 ) error {
 	query := `
-		INSERT INTO sections (title, thumbnail_url, company_id)
-		VALUES ($1, $2, $3);
+		INSERT INTO sections (title, thumbnail_url, is_favorite, company_id)
+		VALUES ($1, $2, $3, $4);
 	`
 
-	rows, error := repository.conn.Query(context, query, section.Title, section.ThumbnailUrl, organizationId)
+	rows, error := repository.conn.Query(context, query, section.Title, section.ThumbnailUrl, false, organizationId)
 	defer rows.Close()
 
 	return error
@@ -33,7 +33,7 @@ func (repository sectionRepositoryImpl) CreateSection(
 
 func (repository sectionRepositoryImpl) GetSections(context context.Context, companyId int) ([]domain.Section, error) {
 	query := `
-		SELECT id, title, thumbnail_url FROM sections 
+		SELECT id, title, thumbnail_url, is_favorite FROM sections 
         WHERE company_id=$1
 	`
 
@@ -43,7 +43,7 @@ func (repository sectionRepositoryImpl) GetSections(context context.Context, com
 	var sections []domain.Section
 	for rows.Next() {
 		var section domain.Section
-		rows.Scan(&section.Id, &section.Title, &section.ThumbnailUrl)
+		rows.Scan(&section.Id, &section.Title, &section.ThumbnailUrl, &section.IsFavorite)
 		sections = append(sections, section)
 	}
 

@@ -55,6 +55,7 @@ components:
         - id
         - title
         - thumbnailUrl
+        - isFavorite
       properties:
         id:
           type: integer
@@ -62,6 +63,8 @@ components:
           type: string
         thumbnailUrl:
           type: string
+        isFavorite:
+          type: boolean
 
     createSectionRequest:
       type: object

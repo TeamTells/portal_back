@@ -2,16 +2,16 @@ package network
 
 import (
 	"net/http"
-	"portal_back/authentication/api"
-	"portal_back/authentication/api/model"
+	"portal_back/authentication/api/internalapi"
+	"portal_back/authentication/api/internalapi/model"
 )
 
-func NewResponseWrapper(authRequestService api.AuthRequestService) ResponseWrapper {
+func NewResponseWrapper(authRequestService internalapi.AuthRequestService) ResponseWrapper {
 	return ResponseWrapper{authRequestService: authRequestService}
 }
 
 type ResponseWrapper struct {
-	authRequestService api.AuthRequestService
+	authRequestService internalapi.AuthRequestService
 }
 
 func (wrapper ResponseWrapper) Wrap(w http.ResponseWriter, r *http.Request, block func(RequestInfo)) {

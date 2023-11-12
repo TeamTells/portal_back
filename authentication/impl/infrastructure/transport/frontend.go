@@ -4,13 +4,13 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
+	"portal_back/authentication/api/frontend"
 	"portal_back/authentication/impl/app/auth"
 	"portal_back/authentication/impl/app/token"
-	"portal_back/authentication/impl/generated/frontendapi"
 	"time"
 )
 
-func NewServer(authService auth.Service, tokenService token.Service) frontendapi.ServerInterface {
+func NewServer(authService auth.Service, tokenService token.Service) frontend.ServerInterface {
 	return &frontendServer{authService: authService, tokenService: tokenService}
 }
 
@@ -27,7 +27,7 @@ func (s *frontendServer) GetSaltByLogin(w http.ResponseWriter, r *http.Request, 
 		w.WriteHeader(http.StatusInternalServerError)
 	}
 
-	resp, err := json.Marshal(frontendapi.SaltResponse{
+	resp, err := json.Marshal(frontend.SaltResponse{
 		Salt: &salt,
 	})
 	if err != nil {
@@ -47,7 +47,7 @@ func (s *frontendServer) Login(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	var loginReq frontendapi.LoginRequest
+	var loginReq frontend.LoginRequest
 	err = json.Unmarshal(reqBody, &loginReq)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
@@ -68,7 +68,7 @@ func (s *frontendServer) Login(w http.ResponseWriter, r *http.Request) {
 
 		s.setRefreshTokenToCookie(w, tokens.RefreshToken)
 
-		resp, err := json.Marshal(frontendapi.TokenResponse{
+		resp, err := json.Marshal(frontend.TokenResponse{
 			AccessJwtToken: &tokens.AccessToken,
 		})
 
@@ -104,7 +104,7 @@ func (s *frontendServer) RefreshToken(w http.ResponseWriter, r *http.Request) {
 
 	s.setRefreshTokenToCookie(w, tokens.RefreshToken)
 
-	resp, err := json.Marshal(frontendapi.TokenResponse{
+	resp, err := json.Marshal(frontend.TokenResponse{
 		AccessJwtToken: &tokens.AccessToken,
 	})
 

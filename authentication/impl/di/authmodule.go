@@ -6,16 +6,16 @@ import (
 	"github.com/jackc/pgx/v5"
 	"net/http"
 	"os"
-	"portal_back/authentication/api"
+	"portal_back/authentication/api/frontend"
+	"portal_back/authentication/api/internalapi"
 	"portal_back/authentication/impl/app/auth"
 	"portal_back/authentication/impl/app/authrequest"
 	"portal_back/authentication/impl/app/token"
-	"portal_back/authentication/impl/generated/frontendapi"
 	"portal_back/authentication/impl/infrastructure/sql"
 	"portal_back/authentication/impl/infrastructure/transport"
 )
 
-func InitAuthModule() (api.AuthRequestService, *pgx.Conn) {
+func InitAuthModule() (internalapi.AuthRequestService, *pgx.Conn) {
 	dbUser := os.Getenv("DB_USER")
 	if dbUser == "" {
 		dbUser = "postgres"
@@ -48,7 +48,7 @@ func InitAuthModule() (api.AuthRequestService, *pgx.Conn) {
 	server := transport.NewServer(authService, tokenService)
 	authRequestService := authrequest.NewService()
 
-	http.Handle("/authorization/", frontendapi.Handler(server))
+	http.Handle("/authorization/", frontend.Handler(server))
 
 	return authRequestService, conn
 }

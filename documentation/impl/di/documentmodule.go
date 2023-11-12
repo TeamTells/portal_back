@@ -7,8 +7,8 @@ import (
 	"net/http"
 	"os"
 	"portal_back/core/network"
+	frontendapi "portal_back/documentation/api/frontend"
 	"portal_back/documentation/impl/app/sections"
-	"portal_back/documentation/impl/generated/frontendapi"
 	"portal_back/documentation/impl/infrastructure/sql"
 	"portal_back/documentation/impl/infrastructure/transport"
 )
