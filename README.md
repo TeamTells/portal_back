@@ -47,3 +47,13 @@ is_favorite boolean NOT NULL,
 company_id integer NOT NULL
 );
 ```
+
+## Миграции
+
+[Инструкция по установке утилиты для миграций](https://github.com/golang-migrate/migrate/blob/master/cmd/migrate/README.md)
+
+Создание миграции: `migrate create -ext sql -dir 
+{path-to-migrations-dir} {migartion-name}`
+
+Миграция базы up: `migrate -path {path-to-migrations-dir} -database "postgres://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:5432/{DB_NAME}" up`
+Миграция базы down: `migrate -path {path-to-migrations-dir} -database "postgres://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:5432/{DB_NAME}" down`
