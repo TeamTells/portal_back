@@ -25,7 +25,7 @@ type frontendServer struct {
 
 func (server *frontendServer) GetSections(w http.ResponseWriter, r *http.Request) {
 	network.Wrap(server.authRequestService, w, r, func(info network.RequestInfo) {
-		sections, error := server.sectionService.GetSections(r.Context(), info.CompanyId)
+		sections, error := server.sectionService.GetSections(r.Context(), info.CompanyId, info.UserId)
 		if error != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			return

@@ -31,13 +31,15 @@ func (repository sectionRepositoryImpl) CreateSection(
 	return error
 }
 
-func (repository sectionRepositoryImpl) GetSections(context context.Context, companyId int) ([]domain.Section, error) {
+func (repository sectionRepositoryImpl) GetSections(context context.Context, companyId int, userId int) ([]domain.Section, error) {
 	query := `
-		SELECT id, title, thumbnail_url, is_favorite FROM sections 
-        WHERE company_id=$1
+		SELECT sections.id, sections.title, sections.thumbnail_url, COALESCE(user_sections_prefs.is_favorite, false) FROM sections
+		LEFT JOIN user_sections_prefs ON sections.id=user_sections_prefs.section_id
+		WHERE user_id=$1 OR user_id IS NULL
+		AND company_id=$2
 	`
 
-	rows, err := repository.conn.Query(context, query, companyId)
+	rows, err := repository.conn.Query(context, query, userId, companyId)
 	defer rows.Close()
 
 	var sections []domain.Section
@@ -72,3 +74,9 @@ func (repository sectionRepositoryImpl) UpdateIsFavoriteSection(
 
 	return error
 }
+
+//select sections.id, sections.title, sections.thumbnail_url, coalesce(user_sections_prefs.is_favorite, false) from sections
+//LEFT JOIN
+//user_sections_prefs ON sections.id=user_sections_prefs.section_id
+//where user_id=3 or user_id is NULL
+//and company_id=1

@@ -6,7 +6,7 @@ import (
 )
 
 type SectionService interface {
-	GetSections(context context.Context, companyId int) ([]domain.Section, error)
+	GetSections(context context.Context, companyId int, userId int) ([]domain.Section, error)
 	CreateSection(context context.Context, section domain.Section, organizationId int) error
 	UpdateIsFavoriteSection(context context.Context, sectionId int, isFavorite bool) error
 }
@@ -23,8 +23,8 @@ func (service *service) CreateSection(context context.Context, section domain.Se
 	return service.sectionRepository.CreateSection(context, section, organizationId)
 }
 
-func (service *service) GetSections(context context.Context, companyId int) ([]domain.Section, error) {
-	return service.sectionRepository.GetSections(context, companyId)
+func (service *service) GetSections(context context.Context, companyId int, userId int) ([]domain.Section, error) {
+	return service.sectionRepository.GetSections(context, companyId, userId)
 }
 
 func (service *service) UpdateIsFavoriteSection(
