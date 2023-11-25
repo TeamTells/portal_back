@@ -16,7 +16,7 @@ type LoginData struct {
 
 type Service interface {
 	GetSaltByLogin(ctx context.Context, login string) (string, error)
-	Login(ctx context.Context, logData LoginData) (token.Tokens, error)
+	Login(ctx context.Context, logData LoginData) (token.LoginData, error)
 	Logout(ctx context.Context, token string) error
 }
 
@@ -33,21 +33,30 @@ func (s *service) GetSaltByLogin(ctx context.Context, login string) (string, err
 	return s.repository.GetSaltByLogin(ctx, login)
 }
 
-func (s *service) Login(ctx context.Context, logData LoginData) (token.Tokens, error) {
+func (s *service) Login(ctx context.Context, logData LoginData) (token.LoginData, error) {
 	password, err := s.repository.GetPasswordByLogin(ctx, logData.Login)
 	if err != nil {
-		return token.Tokens{}, err
+		return token.LoginData{}, err
 	}
 	if password != logData.Password {
-		return token.Tokens{}, ErrUserNotFound
+		return token.LoginData{}, ErrUserNotFound
 	}
 
 	userID, err := s.repository.GetUserIDByLogin(ctx, logData.Login)
 	if err != nil {
-		return token.Tokens{}, err
+		return token.LoginData{}, err
 	}
 
-	return s.tokenService.GenerateTokensForUser(ctx, userID)
+	tokens, err := s.tokenService.GenerateTokensForUser(ctx, userID)
+	if err != nil {
+		return token.LoginData{}, err
+	}
+	return token.LoginData{
+		Tokens: tokens,
+		User: token.User{
+			Id: userID,
+		},
+	}, nil
 }
 
 func (s *service) Logout(ctx context.Context, userToken string) error {
