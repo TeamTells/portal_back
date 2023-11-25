@@ -35,8 +35,8 @@ func (repository sectionRepositoryImpl) GetSections(context context.Context, com
 	query := `
 		SELECT sections.id, sections.title, sections.thumbnail_url, COALESCE(user_sections_prefs.is_favorite, false) FROM sections
 		LEFT JOIN user_sections_prefs ON sections.id=user_sections_prefs.section_id
-		WHERE user_id=$1 OR user_id IS NULL
-		AND company_id=$2
+		AND user_sections_prefs.user_id=$1
+		WHERE company_id=$2
 	`
 
 	rows, err := repository.conn.Query(context, query, userId, companyId)
