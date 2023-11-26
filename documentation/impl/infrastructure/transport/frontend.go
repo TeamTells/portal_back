@@ -68,6 +68,6 @@ func (server *frontendServer) CreateSection(w http.ResponseWriter, r *http.Reque
 
 func (server *frontendServer) UpdateIsFavoriteSection(w http.ResponseWriter, r *http.Request) {
 	network.WrapWithBody(server.authRequestService, w, r, func(info network.RequestInfo, request frontendapi.FavoriteRequest) {
-		server.sectionService.UpdateIsFavoriteSection(r.Context(), *request.SectionId, *request.IsFavorite)
+		server.sectionService.UpdateIsFavoriteSection(r.Context(), *request.SectionId, info.UserId, *request.IsFavorite)
 	})
 }

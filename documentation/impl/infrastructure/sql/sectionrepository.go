@@ -21,11 +21,11 @@ func (repository sectionRepositoryImpl) CreateSection(
 	organizationId int,
 ) error {
 	query := `
-		INSERT INTO sections (title, thumbnail_url, is_favorite, company_id)
-		VALUES ($1, $2, $3, $4);
+		INSERT INTO sections (title, thumbnail_url, company_id)
+		VALUES ($1, $2, $3);
 	`
 
-	rows, error := repository.conn.Query(context, query, section.Title, section.ThumbnailUrl, false, organizationId)
+	rows, error := repository.conn.Query(context, query, section.Title, section.ThumbnailUrl, organizationId)
 	defer rows.Close()
 
 	return error
@@ -61,22 +61,17 @@ func (repository sectionRepositoryImpl) GetSections(context context.Context, com
 func (repository sectionRepositoryImpl) UpdateIsFavoriteSection(
 	context context.Context,
 	sectionId int,
+	userId int,
 	isFavorite bool,
 ) error {
 	query := `
-		UPDATE sections
-		SET is_favorite = $1
-		WHERE id = $2;
+		INSERT INTO user_sections_prefs(user_id, section_id, is_favorite) 
+		VALUES ($1, $2, $3)
+		ON CONFLICT (user_id, section_id) DO UPDATE SET is_favorite=$3
 	`
 
-	rows, error := repository.conn.Query(context, query, isFavorite, sectionId)
+	rows, error := repository.conn.Query(context, query, userId, sectionId, isFavorite)
 	defer rows.Close()
 
 	return error
 }
-
-//select sections.id, sections.title, sections.thumbnail_url, coalesce(user_sections_prefs.is_favorite, false) from sections
-//LEFT JOIN
-//user_sections_prefs ON sections.id=user_sections_prefs.section_id
-//where user_id=3 or user_id is NULL
-//and company_id=1
