@@ -2,6 +2,7 @@
 1. `go install github.com/deepmap/oapi-codegen/v2/cmd/oapi-codegen@latest`
 2. `oapi-codegen -generate gorilla,types authentication/api/frontend/frontendapi.yaml > authentication/api/frontend/frontendapi.gen.go`
 3. `oapi-codegen -generate gorilla,types documentation/api/frontend/frontendapi.yaml > documentation/api/frontend/frontendapi.gen.go`
+4. `oapi-codegen -generate gorilla,types company/api/frontend/frontendapi.yaml > company/api/frontend/frontendapi.gen.go`
 4. `go mod tidy -v`
 5. `go run main.go`
 

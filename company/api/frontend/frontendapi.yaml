@@ -1,0 +1,461 @@
+openapi: 3.0.3
+info:
+  title: Team tells generated
+  version: 1.0.0
+tags:
+  - name: Departments
+    description: Департаменты
+  - name: Employee
+    description: Сотрудники
+  - name: Roles
+    description: Роли
+
+paths:
+  /department/all:
+    get:
+      operationId: GetCompanyDepartments
+      tags:
+        - Departments
+      description: Получить список всех департаментов
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  isEditable:
+                    $ref: '#/components/schemas/isEditable'
+                  departments:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/allDepartmentsResponse'
+        '403':
+          description: Forbidden
+        '401':
+          description: Unauthorized
+  /department/{departmentId}:
+    get:
+      operationId: GetDepartment
+      tags:
+        - Departments
+      parameters:
+        - name: departmentId
+          in: path
+          required: true
+          schema:
+            type: integer     
+      description: Информация о конкретном департаменте
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  isEditable:
+                    $ref: '#/components/schemas/isEditable'
+                  department:
+                    $ref: '#/components/schemas/department'
+        '403':
+          description: Forbidden
+        '401':
+          description: Unauthorized
+  /department/{departmentId}/edit:
+    post:
+      operationId: EditDepartment
+      tags:
+        - Departments
+      parameters:
+        - name: departmentId
+          in: path
+          required: true
+          schema:
+            type: integer
+      description: Редактировать департамент
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/departmentRequest'
+      responses:
+        '200':
+          description: OK
+        '403':
+          description: Forbidden
+        '401':
+          description: Unauthorized
+  /department/create:
+    post:
+      operationId: CreateNewDepartment
+      tags:
+        - Departments
+      description: Создать департамент
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/departmentRequest'
+      responses:
+        '200':
+          description: OK
+        '403':
+          description: Forbidden
+        '401':
+          description: Unauthorized
+  /department/{departmentId}/delete:
+    delete:
+      operationId: DeleteDepartment
+      tags:
+        - Departments
+      description: Удалить департамент
+      parameters:
+        - name: departmentId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: OK
+        '403':
+          description: Forbidden
+        '401':
+          description: Unauthorized
+          
+  /employee/all:
+    get:
+      operationId: GetCompanyDepartmentsWithEmployees
+      tags:
+        - Employee
+      description: Возвращает все департаменты компании вместе с сотрудниками (компания, департаменты которой нужно возвращать, определяется по токену пользователя, который отправил запрос).<br> Возможна высокая вложенность департаментов
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  isEditable:
+                    $ref: '#/components/schemas/isEditable'
+                  employees:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/employee'
+                  departments:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/employeesList'
+        '403':
+          description: Forbidden
+        '401':
+          description: Unauthorized
+  /employee/{employeeId}:
+    get:
+      operationId: GetEmployee
+      tags:
+        - Employee
+      parameters:
+        - name: employeeId
+          in: path
+          required: true
+          schema:
+            type: integer
+      description: Инфо о конкретном сотруднике
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  isEditable:
+                    $ref: '#/components/schemas/isEditable'
+                  employee:
+                    $ref: '#/components/schemas/employeeWithConnections'
+        '403':
+          description: Forbidden
+        '401':
+          description: Unauthorized
+  /employee/{employeeId}/edit:
+    post:
+      operationId: EditEmployee
+      tags:
+        - Employee
+      parameters:
+        - name: employeeId
+          in: path
+          required: true
+          schema:
+            type: integer
+      description: Редактировать сотрудника
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/employeeRequest'
+      responses:
+        '200':
+          description: OK
+        '403':
+          description: Forbidden
+        '401':
+          description: Unauthorized
+  /employee/create:
+    post:
+      operationId: CreateEmployee
+      tags:
+        - Employee
+      description: Создать сотрудника
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/employeeRequest'
+      responses:
+        '200':
+          description: OK
+        '403':
+          description: Forbidden
+        '401':
+          description: Unauthorized
+  /employee/moveToDepartment:
+    post:
+      operationId: MoveEmployeesToDepartment
+      tags:
+        - Employee
+      description: Переместить сотрудников между департаментами
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/moveEmployeeRequest'
+      responses:
+        '200':
+          description: OK
+        '403':
+          description: Forbidden
+        '401':
+          description: Unauthorized
+  /employee/{employeeId}/delete:
+    delete:
+      operationId: DeleteEmployee
+      tags:
+        - Employee
+      parameters:
+        - name: employeeId
+          in: path
+          required: true
+          schema:
+            type: integer
+      description: Удалить сотрудника
+      responses:
+        '200':
+          description: OK
+        '403':
+          description: Forbidden
+        '401':
+          description: Unauthorized
+components:
+  schemas:
+    commonEntity:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+    isEditable:
+      type: boolean
+    role:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        description:
+          type: string
+    employee:
+      type: object
+      properties:
+        id:
+          type: integer
+        firstName:
+          type: string
+        secondName:
+          type: string
+        surname:
+          type: string
+        dateOfBirth:
+          type: string
+          format: date
+        telephoneNumber:
+          type: string
+        email:
+          type: string
+        icon:
+          type: string
+    employeeRequest:
+      type: object
+      required:
+        - firstName
+        - secondName
+        - dateOfBirth
+        - email
+      properties:
+        firstName:
+          type: string
+          description: Имя
+          example: Сергей
+        secondName:
+          type: string
+          description: Фамилия
+          example: Исхаков
+        surname:
+          type: string
+          description: Отчество
+        departmentId:
+          type: integer
+        roleIds:
+          type: array
+          items:
+            type: integer
+        dateOfBirth:
+          type: string
+          format: date
+        telephoneNumber:
+          type: string
+        email:
+          type: string
+        icon:
+          type: string
+    employeeWithConnections:
+      type: object
+      properties:
+        id:
+          type: integer
+        firstName:
+          type: string
+        secondName:
+          type: string
+        surname:
+          type: string
+        dateOfBirth:
+          type: string
+          format: date
+        telephoneNumber:
+          type: string
+        email:
+          type: string
+        icon:
+          type: string
+        company:
+          type: object
+          properties:
+            id:
+              type: integer
+            name:
+              type: string
+        departments:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+              name:
+                type: string
+        roles:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+              name:
+                type: string
+    department:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        supervisor:
+          $ref: '#/components/schemas/commonEntity'
+        parentDepartment:
+          type: object
+          properties:
+            id:
+              type: integer
+            name:
+              type: string
+        employees:
+          type: array
+          items:
+            $ref: '#/components/schemas/employee'
+        departments:
+          type: array
+          items:
+            $ref: '#/components/schemas/department'
+    departmentRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        supervisor:
+          $ref: '#/components/schemas/commonEntity'
+        parentDepartmentId:
+          type: integer
+        employeeIds:
+          type: array
+          items:
+            type: integer
+    allDepartmentsResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        countOfEmployees:
+          type: integer
+        departments:
+          type: array
+          items:
+            $ref: '#/components/schemas/allDepartmentsResponse'
+    employeesList:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        employees:
+          type: array
+          items:
+            $ref: '#/components/schemas/employee'
+        departments:
+          type: array
+          items:
+            $ref: '#/components/schemas/employeesList'
+    moveEmployeeRequest:
+      type: object
+      properties:
+        idDepartmentTo:
+          type: integer
+        employees:
+          type: array
+          items:
+            type: object
+            properties:
+              idEmployee:
+                type: integer
+              idDepartmentFrom:
+                type: integer
+
