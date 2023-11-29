@@ -2,6 +2,8 @@ package employeeAccount
 
 import (
 	"context"
+	"portal_back/authentication/api/internalapi"
+	"portal_back/authentication/api/internalapi/model"
 	frontendapi "portal_back/company/api/frontend"
 	"portal_back/core/network"
 )
@@ -14,17 +16,18 @@ type Service interface {
 	MoveEmployeesToDepartment(ctx context.Context, dto frontendapi.MoveEmployeeRequest, requestInfo network.RequestInfo) error
 }
 
-func NewService(repository Repository) Service {
-	return &service{repository: repository}
+func NewService(repository Repository, authService internalapi.AuthRequestService) Service {
+	return &service{repository: repository, authService: authService}
 }
 
 type service struct {
-	repository Repository
+	repository  Repository
+	authService internalapi.AuthRequestService
 }
 
 func (s *service) CreateEmployee(ctx context.Context, dto frontendapi.EmployeeRequest, requestInfo network.RequestInfo) error {
-	//проверка на права (обращение в модуль ролей)
 	//создать user через модуль авторизации
+	s.authService.CreateNewUser(ctx, model.CreateUserRequest{})
 	//создать employeeAccount
 	//создать связь с департаментом
 
@@ -37,20 +40,18 @@ func (s *service) GetEmployee(ctx context.Context, id int) (frontendapi.Employee
 }
 
 func (s *service) DeleteEmployee(ctx context.Context, id int, requestInfo network.RequestInfo) error {
-	//проверка на права (обращение в модуль ролей)
+
 	//удаление
 	return nil
 }
 
 func (s *service) EditEmployee(ctx context.Context, id int, dto frontendapi.EmployeeRequest, requestInfo network.RequestInfo) error {
-	//проверка на права (обращение в модуль ролей)
 	//редактирование данных в таблице EmployeeAccount
 	//редактирование данных в таблице User
 	return nil
 }
 
 func (s *service) MoveEmployeesToDepartment(ctx context.Context, dto frontendapi.MoveEmployeeRequest, requestInfo network.RequestInfo) error {
-	//проверка на права (обращение в модуль ролей)
 	//редактирование данных в таблице Employee_department
 	return nil
 }
