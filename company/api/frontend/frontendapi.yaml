@@ -393,12 +393,7 @@ components:
         supervisor:
           $ref: '#/components/schemas/commonEntity'
         parentDepartment:
-          type: object
-          properties:
-            id:
-              type: integer
-            name:
-              type: string
+          $ref: '#/components/schemas/commonEntity'
         employees:
           type: array
           items:

@@ -79,7 +79,7 @@ func (s *service) createUserOrGetExisting(ctx context.Context, Email string) (in
 }
 
 func (s *service) GetEmployee(ctx context.Context, id int) (frontendapi.EmployeeWithConnections, error) {
-	// один запрос в репо, где подтягивается employee со всеми нужными связями (User, Company, Department)
+	// один запрос в репо, где подтягивается employee со всеми нужными связями (User, Company, department)
 	return frontendapi.EmployeeWithConnections{}, nil
 }
 
