@@ -30,7 +30,7 @@ type service struct {
 
 func (s *service) CreateEmployee(ctx context.Context, dto frontendapi.EmployeeRequest, requestInfo network.RequestInfo) error {
 	//создаём юзера или берём уже созданного
-	userId, err := s.createUser(ctx, dto.Email)
+	userId, err := s.createUserOrGetExisting(ctx, dto.Email)
 	if err != nil {
 		return nil
 	}
@@ -62,7 +62,7 @@ func (s *service) CreateEmployee(ctx context.Context, dto frontendapi.EmployeeRe
 	return nil
 }
 
-func (s *service) createUser(ctx context.Context, Email string) (int, error) {
+func (s *service) createUserOrGetExisting(ctx context.Context, Email string) (int, error) {
 	createUserErr := s.authService.CreateNewUser(ctx, Email)
 
 	if createUserErr != nil && !errors.Is(createUserErr, internalapi.UserAlreadyExists) {
