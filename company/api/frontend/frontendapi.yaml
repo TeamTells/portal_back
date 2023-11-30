@@ -305,8 +305,13 @@ components:
       required:
         - firstName
         - secondName
+        - surname
+        - roleIds
         - dateOfBirth
+        - telephoneNumber
         - email
+        - icon
+        - password
       properties:
         firstName:
           type: string
@@ -333,6 +338,8 @@ components:
         email:
           type: string
         icon:
+          type: string
+        password:
           type: string
     employeeWithConnections:
       type: object
@@ -405,6 +412,10 @@ components:
             $ref: '#/components/schemas/department'
     departmentRequest:
       type: object
+      required:
+        - name
+        - parentDepartmentId
+        - employeeIds
       properties:
         name:
           type: string
@@ -446,6 +457,8 @@ components:
             $ref: '#/components/schemas/employeesList'
     moveEmployeeRequest:
       type: object
+      required:
+        - idDepartmentTo
       properties:
         idDepartmentTo:
           type: integer
@@ -453,6 +466,8 @@ components:
           type: array
           items:
             type: object
+            required:
+              - idEmployee
             properties:
               idEmployee:
                 type: integer

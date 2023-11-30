@@ -13,6 +13,11 @@ func NewService() internalapi.AuthRequestService {
 type service struct {
 }
 
+func (s *service) GetUserIdByEmail(ctx context.Context, email string) (*int, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
 func (s *service) IsAuthenticated(token string) model.AuthValidationResult {
 	// TODO: not implemented
 	return model.SUCCESS

@@ -8,4 +8,5 @@ import (
 type AuthRequestService interface {
 	IsAuthenticated(token string) model.AuthValidationResult
 	CreateNewUser(ctx context.Context, user model.CreateUserRequest) error
+	GetUserIdByEmail(ctx context.Context, email string) (*int, error)
 }
