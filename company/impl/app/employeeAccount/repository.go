@@ -6,7 +6,7 @@ import (
 )
 
 type Repository interface {
-	CreateEmployee(ctx context.Context, dto frontendapi.EmployeeRequest) error
+	CreateEmployee(ctx context.Context, dto frontendapi.EmployeeRequest, userId int, companyId int) error
 	GetEmployee(ctx context.Context, id int) (frontendapi.EmployeeWithConnections, error)
 	GetEmployeeByUserAndCompanyIds(ctx context.Context, userId int, companyId int) (*frontendapi.EmployeeWithConnections, error)
 	DeleteEmployee(ctx context.Context, id int) error

@@ -311,7 +311,6 @@ components:
         - telephoneNumber
         - email
         - icon
-        - password
       properties:
         firstName:
           type: string
@@ -338,8 +337,6 @@ components:
         email:
           type: string
         icon:
-          type: string
-        password:
           type: string
     employeeWithConnections:
       type: object

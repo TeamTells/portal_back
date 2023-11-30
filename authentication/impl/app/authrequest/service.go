@@ -23,7 +23,9 @@ func (s *service) IsAuthenticated(token string) model.AuthValidationResult {
 	return model.SUCCESS
 }
 
-func (s *service) CreateNewUser(ctx context.Context, user model.CreateUserRequest) error {
+func (s *service) CreateNewUser(ctx context.Context, email string) error {
 	// TODO: not implemented
 	return nil
+
+	//если такой юзер уже существует, падает ошибка UserAlreadyExists
 }

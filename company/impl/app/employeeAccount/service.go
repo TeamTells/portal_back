@@ -4,12 +4,12 @@ import (
 	"context"
 	"errors"
 	"portal_back/authentication/api/internalapi"
-	"portal_back/authentication/api/internalapi/model"
 	frontendapi "portal_back/company/api/frontend"
 	"portal_back/core/network"
 )
 
 var EmployeeAlreadyExists = errors.New("employee with this email already exists in your company")
+var EmployeeNotFound = errors.New("employee not found")
 
 type Service interface {
 	CreateEmployee(ctx context.Context, dto frontendapi.EmployeeRequest, requestInfo network.RequestInfo) error
@@ -29,39 +29,30 @@ type service struct {
 }
 
 func (s *service) CreateEmployee(ctx context.Context, dto frontendapi.EmployeeRequest, requestInfo network.RequestInfo) error {
-	//проверка, нет ли уже такого юзера в БД
-	userId, err := s.authService.GetUserIdByEmail(ctx, dto.Email)
+	//создаём юзера или берём уже созданного
+	userId, err := s.createUser(ctx, dto.Email)
+	if err != nil {
+		return nil
+	}
+
+	//проверяем, состоит ли он в данной компании
+	employee, err := s.repository.GetEmployeeByUserAndCompanyIds(ctx, userId, requestInfo.CompanyId)
 	if err != nil {
 		return err
 	}
-
-	if userId != nil {
-		//если юзер есть, проверяем, состоит ли он в данной компании
-		employee, err := s.repository.GetEmployeeByUserAndCompanyIds(ctx, *userId, requestInfo.CompanyId)
-		if err != nil {
-			return err
-		}
-		if employee != nil {
-			return EmployeeAlreadyExists
-		}
+	//если уже состоит, кидаем ошибку
+	if employee != nil {
+		return EmployeeAlreadyExists
 	}
 
-	if userId == nil {
-		// если юзера нет, создаём нового
-		err = s.authService.CreateNewUser(ctx, model.CreateUserRequest{Email: dto.Email, Password: dto.Password})
-		if err != nil {
-			return err
-		}
-	}
-
-	err = s.repository.CreateEmployee(ctx, dto)
+	err = s.repository.CreateEmployee(ctx, dto, userId, requestInfo.CompanyId)
 	if err != nil {
 		return err
 	}
 
 	//после создания сотрудника добавляем его в департамент
 	if dto.DepartmentId != nil {
-		createdEmployee, err := s.repository.GetEmployeeByUserAndCompanyIds(ctx, *userId, requestInfo.CompanyId)
+		createdEmployee, err := s.repository.GetEmployeeByUserAndCompanyIds(ctx, userId, requestInfo.CompanyId)
 		if err != nil {
 			return err
 		}
@@ -69,6 +60,22 @@ func (s *service) CreateEmployee(ctx context.Context, dto frontendapi.EmployeeRe
 	}
 
 	return nil
+}
+
+func (s *service) createUser(ctx context.Context, Email string) (int, error) {
+	createUserErr := s.authService.CreateNewUser(ctx, Email)
+
+	if createUserErr != nil && !errors.Is(createUserErr, internalapi.UserAlreadyExists) {
+		return -1, createUserErr
+	}
+
+	userId, getUserErr := s.authService.GetUserIdByEmail(ctx, Email)
+
+	if getUserErr != nil {
+		return -1, getUserErr
+	}
+
+	return *userId, nil
 }
 
 func (s *service) GetEmployee(ctx context.Context, id int) (frontendapi.EmployeeWithConnections, error) {
