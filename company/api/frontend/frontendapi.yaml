@@ -9,7 +9,6 @@ tags:
     description: Сотрудники
   - name: Roles
     description: Роли
-
 paths:
   /department/all:
     get:
@@ -24,24 +23,27 @@ paths:
             application/json:
               schema:
                 type: object
+                required:
+                  - isEditable
+                  - departments
                 properties:
                   isEditable:
-                    $ref: '#/components/schemas/isEditable'
+                    type: boolean
                   departments:
                     type: array
                     items:
-                      $ref: '#/components/schemas/allDepartmentsResponse'
+                      $ref: '#/components/schemas/departments'
         '403':
           description: Forbidden
         '401':
           description: Unauthorized
-  /department/{departmentId}:
+  /department/{departmentID}:
     get:
       operationId: GetDepartment
       tags:
         - Departments
       parameters:
-        - name: departmentId
+        - name: departmentID
           in: path
           required: true
           schema:
@@ -54,22 +56,25 @@ paths:
             application/json:
               schema:
                 type: object
+                required:
+                  - isEditable
+                  - department
                 properties:
                   isEditable:
-                    $ref: '#/components/schemas/isEditable'
+                    type: boolean
                   department:
                     $ref: '#/components/schemas/department'
         '403':
           description: Forbidden
         '401':
           description: Unauthorized
-  /department/{departmentId}/edit:
+  /department/{departmentID}/edit:
     post:
       operationId: EditDepartment
       tags:
         - Departments
       parameters:
-        - name: departmentId
+        - name: departmentID
           in: path
           required: true
           schema:
@@ -105,14 +110,14 @@ paths:
           description: Forbidden
         '401':
           description: Unauthorized
-  /department/{departmentId}/delete:
+  /department/{departmentID}/delete:
     delete:
       operationId: DeleteDepartment
       tags:
         - Departments
       description: Удалить департамент
       parameters:
-        - name: departmentId
+        - name: departmentID
           in: path
           required: true
           schema:
@@ -140,7 +145,7 @@ paths:
                 type: object
                 properties:
                   isEditable:
-                    $ref: '#/components/schemas/isEditable'
+                    type: boolean
                   employees:
                     type: array
                     items:
@@ -148,18 +153,18 @@ paths:
                   departments:
                     type: array
                     items:
-                      $ref: '#/components/schemas/employeesList'
+                      $ref: '#/components/schemas/departmentWithEmployees'
         '403':
           description: Forbidden
         '401':
           description: Unauthorized
-  /employee/{employeeId}:
+  /employee/{employeeID}:
     get:
       operationId: GetEmployee
       tags:
         - Employee
       parameters:
-        - name: employeeId
+        - name: employeeID
           in: path
           required: true
           schema:
@@ -174,20 +179,20 @@ paths:
                 type: object
                 properties:
                   isEditable:
-                    $ref: '#/components/schemas/isEditable'
+                    type: boolean
                   employee:
                     $ref: '#/components/schemas/employeeWithConnections'
         '403':
           description: Forbidden
         '401':
           description: Unauthorized
-  /employee/{employeeId}/edit:
+  /employee/{employeeID}/edit:
     post:
       operationId: EditEmployee
       tags:
         - Employee
       parameters:
-        - name: employeeId
+        - name: employeeID
           in: path
           required: true
           schema:
@@ -241,13 +246,13 @@ paths:
           description: Forbidden
         '401':
           description: Unauthorized
-  /employee/{employeeId}/delete:
+  /employee/{employeeID}/delete:
     delete:
       operationId: DeleteEmployee
       tags:
         - Employee
       parameters:
-        - name: employeeId
+        - name: employeeID
           in: path
           required: true
           schema:
@@ -262,17 +267,12 @@ paths:
           description: Unauthorized
 components:
   schemas:
-    commonEntity:
-      type: object
-      properties:
-        id:
-          type: integer
-        name:
-          type: string
-    isEditable:
-      type: boolean
     role:
       type: object
+      required:
+        - id
+        - name
+        - description
       properties:
         id:
           type: integer
@@ -282,6 +282,15 @@ components:
           type: string
     employee:
       type: object
+      required:
+        - id
+        - firstName
+        - secondName
+        - surname
+        - dateOfBirth
+        - telephoneNumber
+        - email
+        - icon
       properties:
         id:
           type: integer
@@ -306,7 +315,7 @@ components:
         - firstName
         - secondName
         - surname
-        - roleIds
+        - roleIDs
         - dateOfBirth
         - telephoneNumber
         - email
@@ -314,18 +323,16 @@ components:
       properties:
         firstName:
           type: string
-          description: Имя
           example: Сергей
         secondName:
           type: string
-          description: Фамилия
           example: Исхаков
         surname:
           type: string
           description: Отчество
-        departmentId:
+        departmentID:
           type: integer
-        roleIds:
+        roleIDs:
           type: array
           items:
             type: integer
@@ -340,6 +347,18 @@ components:
           type: string
     employeeWithConnections:
       type: object
+      required:
+        - id
+        - firstName
+        - secondName
+        - surname
+        - dateOfBirth
+        - telephoneNumber
+        - email
+        - icon
+        - company
+        - departments
+        - roles
       properties:
         id:
           type: integer
@@ -360,6 +379,9 @@ components:
           type: string
         company:
           type: object
+          required:
+            - id
+            - name
           properties:
             id:
               type: integer
@@ -369,6 +391,9 @@ components:
           type: array
           items:
             type: object
+            required:
+              - id
+              - name
             properties:
               id:
                 type: integer
@@ -378,6 +403,9 @@ components:
           type: array
           items:
             type: object
+            required:
+              - id
+              - name
             properties:
               id:
                 type: integer
@@ -385,15 +413,35 @@ components:
                 type: string
     department:
       type: object
+      required:
+        - id
+        - name
+        - employees
       properties:
         id:
           type: integer
         name:
           type: string
         supervisor:
-          $ref: '#/components/schemas/commonEntity'
+          type: object
+          required:
+            - id
+            - name
+          properties:
+            id:
+              type: integer
+            name:
+              type: string
         parentDepartment:
-          $ref: '#/components/schemas/commonEntity'
+          type: object
+          required:
+            - id
+            - name
+          properties:
+            id:
+              type: integer
+            name:
+              type: string
         employees:
           type: array
           items:
@@ -406,21 +454,32 @@ components:
       type: object
       required:
         - name
-        - parentDepartmentId
-        - employeeIds
+        - employeeIDs
       properties:
         name:
           type: string
         supervisor:
-          $ref: '#/components/schemas/commonEntity'
-        parentDepartmentId:
+          type: object
+          required:
+            - id
+            - name
+          properties:
+            id:
+              type: integer
+            name:
+              type: string
+        parentDepartmentID:
           type: integer
-        employeeIds:
+        employeeIDs:
           type: array
           items:
             type: integer
-    allDepartmentsResponse:
+    departments:
       type: object
+      required:
+        - id
+        - name
+        - countOfEmployees
       properties:
         id:
           type: integer
@@ -431,9 +490,14 @@ components:
         departments:
           type: array
           items:
-            $ref: '#/components/schemas/allDepartmentsResponse'
-    employeesList:
+            $ref: '#/components/schemas/departments'
+    departmentWithEmployees:
       type: object
+      required:
+        - id
+        - name
+        - employees
+        - departments
       properties:
         id:
           type: integer
@@ -446,11 +510,12 @@ components:
         departments:
           type: array
           items:
-            $ref: '#/components/schemas/employeesList'
+            $ref: '#/components/schemas/departmentWithEmployees'
     moveEmployeeRequest:
       type: object
       required:
         - idDepartmentTo
+        - employees
       properties:
         idDepartmentTo:
           type: integer
