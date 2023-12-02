@@ -238,7 +238,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/moveEmployeeRequest'
+              $ref: '#/components/schemas/moveEmployeesRequest'
       responses:
         '200':
           description: OK
@@ -511,13 +511,13 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/departmentWithEmployees'
-    moveEmployeeRequest:
+    moveEmployeesRequest:
       type: object
       required:
         - idDepartmentTo
         - employees
       properties:
-        idDepartmentTo:
+        DepartmentToID:
           type: integer
         employees:
           type: array
@@ -526,8 +526,8 @@ components:
             required:
               - idEmployee
             properties:
-              idEmployee:
+              EmployeeID:
                 type: integer
-              idDepartmentFrom:
+              DepartmentFromID:
                 type: integer
 
