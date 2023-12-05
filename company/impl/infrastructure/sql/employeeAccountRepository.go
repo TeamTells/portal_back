@@ -3,11 +3,11 @@ package sql
 import (
 	"context"
 	"github.com/jackc/pgx/v5"
-	"portal_back/company/impl/app/employeeAccount"
+	"portal_back/company/impl/app/employeeaccount"
 	"portal_back/company/impl/domain"
 )
 
-func NewEmployeeAccountRepository(conn *pgx.Conn) employeeAccount.Repository {
+func NewEmployeeAccountRepository(conn *pgx.Conn) employeeaccount.Repository {
 	return &repository{conn: conn}
 }
 
