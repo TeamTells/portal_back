@@ -1,37 +1,22 @@
 package di
 
 import (
-	"context"
-	"fmt"
 	"github.com/jackc/pgx/v5"
-	"os"
+	"net/http"
 	"portal_back/authentication/api/internalapi"
+	"portal_back/company/api/frontend"
+	"portal_back/company/impl/app/employeeaccount"
+	"portal_back/company/impl/infrastructure/sql"
+	"portal_back/company/impl/infrastructure/transport"
+	rolesapi "portal_back/roles/api/internalapi"
 )
 
-func InitCompanyModule(internalapi.AuthRequestService) *pgx.Conn {
-	dbUser := os.Getenv("DB_USER")
-	if dbUser == "" {
-		dbUser = "postgres"
-	}
+func InitCompanyModule(authApi internalapi.AuthRequestService, rolesApi rolesapi.RolesRequestService, conn *pgx.Conn) {
 
-	dbPassword := os.Getenv("DB_PASSWORD")
-	if dbPassword == "" {
-		dbPassword = "password"
-	}
+	repo := sql.NewEmployeeAccountRepository(conn)
+	accountService := employeeaccount.NewService(repo, authApi)
 
-	dbName := os.Getenv("DB_EMPLOYEE_NAME")
-	if dbName == "" {
-		dbName = "app"
-	}
+	server := transport.NewServer(accountService, rolesApi)
 
-	dbHost := os.Getenv("DB_HOST")
-	if dbHost == "" {
-		dbHost = "localhost"
-	}
-
-	connStr := fmt.Sprintf("postgres://%s:%s@%s:5432/%s", dbUser, dbPassword, dbHost, dbName)
-
-	conn, _ := pgx.Connect(context.Background(), connStr)
-
-	return conn
+	http.Handle("/", frontendapi.Handler(server))
 }

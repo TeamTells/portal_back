@@ -3,17 +3,17 @@ package transport
 import (
 	"net/http"
 	"portal_back/company/api/frontend"
-	"portal_back/company/impl/app/employeeAccount"
+	"portal_back/company/impl/app/employeeaccount"
 	"portal_back/roles/api/internalapi"
 )
 
-func NewServer() frontendapi.ServerInterface {
-	return &frontendServer{}
+func NewServer(accountService employeeaccount.Service, rolesService internalapi.RolesRequestService) frontendapi.ServerInterface {
+	return &frontendServer{accountService, rolesService}
 }
 
 type frontendServer struct {
-	employeeAccountService employeeAccount.Service
-	rolesService           internalapi.RolesRequestService
+	accountService employeeaccount.Service
+	rolesService   internalapi.RolesRequestService
 }
 
 func (f frontendServer) GetCompanyDepartments(w http.ResponseWriter, r *http.Request) {
@@ -62,8 +62,6 @@ func (f frontendServer) MoveEmployeesToDepartment(w http.ResponseWriter, r *http
 }
 
 func (f frontendServer) GetEmployee(w http.ResponseWriter, r *http.Request, employeeId int) {
-	//TODO implement me
-	panic("implement me")
 }
 
 func (f frontendServer) DeleteEmployee(w http.ResponseWriter, r *http.Request, employeeId int) {
