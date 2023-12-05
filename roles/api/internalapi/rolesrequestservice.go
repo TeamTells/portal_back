@@ -1,7 +1,10 @@
 package internalapi
 
-import "portal_back/roles/api/internalapi/model"
+import (
+	"context"
+	"portal_back/roles/api/internalapi/model"
+)
 
 type RolesRequestService interface {
-	IsUserHasRole(accountId int, roleType model.RoleType) bool
+	IsUserHasRole(ctx context.Context, accountId int, roleType model.RoleType) (bool, error)
 }

@@ -1,4 +1,4 @@
-package employeeAccount
+package employeeaccount
 
 import (
 	"context"
