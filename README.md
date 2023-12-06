@@ -17,7 +17,7 @@ Configure GoLand run config with the following env vars:
 
 Для работы с бд
 1. установить postgres
-2. создать две таблицы
+2. создать две таблицы, либо выполнить миграции
 
 ```
 CREATE TABLE auth_user
@@ -52,8 +52,8 @@ company_id integer NOT NULL
 
 [Инструкция по установке утилиты для миграций](https://github.com/golang-migrate/migrate/blob/master/cmd/migrate/README.md)
 
-Создание миграции: `migrate create -ext sql -dir 
-{path-to-migrations-dir} {migartion-name}`
+Создание миграции: `migrate create -ext sql -dir {path-to-migrations-dir} {migartion-name}`
 
-Миграция базы up: `migrate -path {path-to-migrations-dir} -database "postgres://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:5432/{DB_NAME}" up`
-Миграция базы down: `migrate -path {path-to-migrations-dir} -database "postgres://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:5432/{DB_NAME}" down`
+Миграция базы вручную (up-миграции также выполняются при запуске приложения):
+up: `migrate -path {path-to-migrations-dir} -database "postgres://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:5432/{DB_NAME}" up`
+down: `migrate -path {path-to-migrations-dir} -database "postgres://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:5432/{DB_NAME}" down`
