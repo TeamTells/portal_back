@@ -25,7 +25,7 @@ type frontendServer struct {
 
 func (server *frontendServer) GetSections(w http.ResponseWriter, r *http.Request) {
 	network.Wrap(server.authRequestService, w, r, func(info network.RequestInfo) {
-		sections, error := server.sectionService.GetSections(r.Context(), info.CompanyId)
+		sections, error := server.sectionService.GetSections(r.Context(), info.CompanyId, info.UserId)
 		if error != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			return
@@ -68,6 +68,6 @@ func (server *frontendServer) CreateSection(w http.ResponseWriter, r *http.Reque
 
 func (server *frontendServer) UpdateIsFavoriteSection(w http.ResponseWriter, r *http.Request) {
 	network.WrapWithBody(server.authRequestService, w, r, func(info network.RequestInfo, request frontendapi.FavoriteRequest) {
-		server.sectionService.UpdateIsFavoriteSection(r.Context(), *request.SectionId, *request.IsFavorite)
+		server.sectionService.UpdateIsFavoriteSection(r.Context(), *request.SectionId, info.UserId, *request.IsFavorite)
 	})
 }

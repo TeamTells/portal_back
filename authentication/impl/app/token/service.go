@@ -15,6 +15,15 @@ type Tokens struct {
 	RefreshToken string
 }
 
+type User struct {
+	Id int
+}
+
+type LoginData struct {
+	Tokens Tokens
+	User   User
+}
+
 type Service interface {
 	GenerateTokensForUser(ctx context.Context, userID int) (Tokens, error)
 	RefreshToken(ctx context.Context, refreshToken string) (Tokens, error)
