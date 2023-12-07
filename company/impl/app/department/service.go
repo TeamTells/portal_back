@@ -2,9 +2,12 @@ package department
 
 import (
 	"context"
+	"errors"
 	"portal_back/company/impl/domain"
 	"portal_back/core/network"
 )
+
+var DepartmentEmployeesNotFound = errors.New("employees in this department not found")
 
 type Service interface {
 	GetCompanyDepartments(ctx context.Context, companyId int) (*[]domain.DepartmentPreview, error)
