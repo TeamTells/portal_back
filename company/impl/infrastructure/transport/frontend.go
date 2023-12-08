@@ -1,6 +1,8 @@
 package transport
 
 import (
+	"encoding/json"
+	"io/ioutil"
 	"net/http"
 	"portal_back/company/api/frontend"
 	"portal_back/company/impl/app/employeeaccount"
@@ -62,6 +64,30 @@ func (f frontendServer) MoveEmployeesToDepartment(w http.ResponseWriter, r *http
 }
 
 func (f frontendServer) GetEmployee(w http.ResponseWriter, r *http.Request, employeeId int) {
+	reqBody, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	var getEmployeeReq frontendapi.EmployeeWithConnections
+	err = json.Unmarshal(reqBody, &getEmployeeReq)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	employee, err := f.accountService.GetEmployee(
+		r.Context(),
+		employeeId)
+
+	if err == employeeaccount.EmployeeNotFound {
+		w.WriteHeader(http.StatusNotFound)
+	} else if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+	} else if err == nil {
+		*resp, err := json.Marshal(frontendapi.EmployeeWithConnections{
+			Company: employee.Company,
+		})
+	}
 }
 
 func (f frontendServer) DeleteEmployee(w http.ResponseWriter, r *http.Request, employeeId int) {
