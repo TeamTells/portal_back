@@ -2,6 +2,7 @@ package sql
 
 import (
 	"context"
+	"errors"
 	"github.com/jackc/pgx/v5"
 	"portal_back/company/impl/app/employeeaccount"
 	"portal_back/company/impl/domain"
@@ -22,25 +23,25 @@ func (r employeeAccountRepository) CreateEmployee(ctx context.Context, dto domai
 
 func (r employeeAccountRepository) GetEmployee(ctx context.Context, id int) (domain.EmployeeWithConnections, error) {
 	var employee domain.EmployeeWithConnections
-	var err error
 	var rows pgx.Rows
 	query := `
 		SELECT employeeaccount.id, employeeaccount.firstname,
 		       employeeaccount.secondname, employeeaccount.surname,
 		       employeeaccount.dateofbirth, employeeaccount.telephonenumber,
-		       employeeaccount.avatarurl, company.name, auth_user.email
+		       employeeaccount.avatarurl, company.id, company.name, auth_user.email
 		FROM employeeaccount
 		LEFT JOIN company ON employeeaccount.companyid=company.id
 		LEFT JOIN auth_user ON employeeaccount.userid=auth_user.id
         WHERE employeeaccount.id=$1
 	`
-	err = r.conn.QueryRow(ctx, query, id).Scan(employee.Id, employee.FirstName,
-		employee.SecondName, employee.Surname,
-		employee.DateOfBirth, employee.TelephoneNumber,
-		employee.Icon, employee.Email)
-	if err == pgx.ErrNoRows {
+	err := r.conn.QueryRow(ctx, query, id).Scan(&employee.Id, &employee.FirstName,
+		&employee.SecondName, &employee.Surname,
+		&employee.DateOfBirth, &employee.TelephoneNumber,
+		&employee.Icon, &employee.Company.Id, &employee.Company.Name, &employee.Email)
+	if errors.Is(err, pgx.ErrNoRows) {
 		return employee, employeeaccount.EmployeeNotFound
-	} else if err != nil {
+	}
+	if err != nil {
 		return employee, err
 	}
 	query = `

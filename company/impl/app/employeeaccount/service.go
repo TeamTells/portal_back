@@ -80,7 +80,7 @@ func (s *service) createUserOrGetExisting(ctx context.Context, Email string) (in
 
 func (s *service) GetEmployee(ctx context.Context, id int) (domain.EmployeeWithConnections, error) {
 	// один запрос в репо, где подтягивается employee со всеми нужными связями (User, Company, department)
-	return domain.EmployeeWithConnections{}, nil
+	return s.repository.GetEmployee(ctx, id)
 }
 
 func (s *service) DeleteEmployee(ctx context.Context, id int, requestInfo network.RequestInfo) error {

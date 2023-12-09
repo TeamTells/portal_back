@@ -378,39 +378,45 @@ components:
         icon:
           type: string
         company:
-          type: object
-          required:
-            - id
-            - name
-          properties:
-            id:
-              type: integer
-            name:
-              type: string
+          $ref: '#/components/schemas/company'
         departments:
           type: array
           items:
-            type: object
-            required:
-              - id
-              - name
-            properties:
-              id:
-                type: integer
-              name:
-                type: string
+            $ref: '#/components/schemas/departmentInfo'
         roles:
           type: array
           items:
-            type: object
-            required:
-              - id
-              - name
-            properties:
-              id:
-                type: integer
-              name:
-                type: string
+            $ref: '#/components/schemas/roleInfo'
+    company:
+      type: object
+      required:
+        - id
+        - name
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+    departmentInfo:
+      type: object
+      required:
+        - id
+        - name
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+    roleInfo:
+      type: object
+      required:
+        - id
+        - name
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
     department:
       type: object
       required:
