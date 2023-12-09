@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"portal_back/company/api/frontend"
 	"portal_back/company/impl/app/employeeaccount"
-	"portal_back/company/impl/domain"
+	"portal_back/company/impl/infrastructure/mapper"
 	"portal_back/roles/api/internalapi"
 )
 
@@ -78,14 +78,14 @@ func (f frontendServer) GetEmployee(w http.ResponseWriter, r *http.Request, empl
 			Id:              employee.Id,
 			Company:         frontendapi.Company{Id: employee.Company.Id, Name: employee.Company.Name},
 			DateOfBirth:     openapi_types.Date{Time: employee.DateOfBirth},
-			Departments:     mapDepartments(employee.Departments),
+			Departments:     mapper.MapDepartments(employee.Departments),
 			Email:           employee.Email,
 			FirstName:       employee.FirstName,
 			SecondName:      employee.SecondName,
 			Surname:         employee.Surname,
 			Icon:            employee.Icon,
 			TelephoneNumber: employee.TelephoneNumber,
-			Roles:           mapRoles(employee.Roles),
+			Roles:           mapper.MapRoles(employee.Roles),
 		})
 
 		if err != nil {
@@ -100,22 +100,6 @@ func (f frontendServer) GetEmployee(w http.ResponseWriter, r *http.Request, empl
 			return
 		}
 	}
-}
-
-func mapDepartments(departments []domain.DepartmentInfo) []frontendapi.DepartmentInfo {
-	var result []frontendapi.DepartmentInfo
-	for _, d := range departments {
-		result = append(result, frontendapi.DepartmentInfo{Id: d.Id, Name: d.Name})
-	}
-	return result
-}
-
-func mapRoles(departments []domain.RoleInfo) []frontendapi.RoleInfo {
-	var result []frontendapi.RoleInfo
-	for _, d := range departments {
-		result = append(result, frontendapi.RoleInfo{Id: d.Id, Name: d.Name})
-	}
-	return result
 }
 
 func (f frontendServer) DeleteEmployee(w http.ResponseWriter, r *http.Request, employeeId int) {
