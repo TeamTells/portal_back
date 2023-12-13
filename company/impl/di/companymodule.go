@@ -12,10 +12,10 @@ import (
 	rolesapi "portal_back/roles/api/internalapi"
 )
 
-func InitCompanyModule(authApi internalapi.AuthRequestService, rolesApi rolesapi.RolesRequestService, conn *pgx.Conn) {
+func InitCompanyModule(authApi internalapi.AuthRequestService, userApi internalapi.UserRequestService, rolesApi rolesapi.RolesRequestService, conn *pgx.Conn) {
 
 	accountRepo := sql.NewEmployeeAccountRepository(conn)
-	accountService := employeeaccount.NewService(accountRepo, authApi)
+	accountService := employeeaccount.NewService(accountRepo, userApi)
 
 	departmentRepo := sql.NewDepartmentRepository(conn)
 	departmentService := department.NewService(departmentRepo)

@@ -8,26 +8,26 @@ import (
 	"net/http"
 	"os"
 	"portal_back/authentication/impl/di"
-	di3 "portal_back/company/impl/di"
-	di2 "portal_back/documentation/impl/di"
-	di4 "portal_back/roles/impl/di"
+	companyDi "portal_back/company/impl/di"
+	documentationDi "portal_back/documentation/impl/di"
+	rolesDi "portal_back/roles/impl/di"
 )
 
 func InitAppModule() {
 	conn := createConnection()
 	defer conn.Close(context.Background())
 
-	authService := di.InitAuthModule(conn)
+	authService, userRequestService := di.InitAuthModule(conn)
 
-	documentConnection := di2.InitDocumentModule(authService)
+	documentConnection := documentationDi.InitDocumentModule(authService)
 	defer documentConnection.Close(context.Background())
 
 	// можно инжектить в другие модули
 	authService.IsAuthenticated("")
 
-	rolesModule := di4.InitRolesModule()
+	rolesModule := rolesDi.InitRolesModule()
 
-	di3.InitCompanyModule(authService, rolesModule, conn)
+	companyDi.InitCompanyModule(authService, userRequestService, rolesModule, conn)
 
 	appPort := os.Getenv("BACKEND_PORT")
 	if appPort == "" {

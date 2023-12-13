@@ -19,18 +19,18 @@ type Service interface {
 	MoveEmployeesToDepartment(ctx context.Context, dto domain.MoveEmployeesRequest) error
 }
 
-func NewService(repository Repository, authService internalapi.AuthRequestService) Service {
-	return &service{repository: repository, authService: authService}
+func NewService(repository Repository, userService internalapi.UserRequestService) Service {
+	return &service{repository: repository, userService: userService}
 }
 
 type service struct {
 	repository  Repository
-	authService internalapi.AuthRequestService
+	userService internalapi.UserRequestService
 }
 
 func (s *service) CreateEmployee(ctx context.Context, dto domain.EmployeeRequest, requestInfo network.RequestInfo) error {
 	//создаём юзера или берём уже созданного
-	userId, err := s.createUserOrGetExisting(ctx, dto.Email)
+	userId, err := s.createUserOrGetExisting(dto.Email)
 	if err != nil {
 		return nil
 	}
@@ -58,14 +58,14 @@ func (s *service) CreateEmployee(ctx context.Context, dto domain.EmployeeRequest
 	return nil
 }
 
-func (s *service) createUserOrGetExisting(ctx context.Context, Email string) (int, error) {
-	createUserErr := s.authService.CreateNewUser(ctx, Email)
+func (s *service) createUserOrGetExisting(Email string) (int, error) {
+	createUserErr := s.userService.CreateNewUser(Email)
 
 	if createUserErr != nil && !errors.Is(createUserErr, internalapi.UserAlreadyExists) {
 		return -1, createUserErr
 	}
 
-	userId, getUserErr := s.authService.GetUserId(ctx, Email)
+	userId, getUserErr := s.userService.GetUserId(Email)
 
 	if getUserErr != nil {
 		return -1, getUserErr
