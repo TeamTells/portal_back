@@ -40,7 +40,7 @@ func (s *service) GetDepartments(ctx context.Context, companyId int) ([]domain.D
 			Departments:      &arr, Id: dep.Id, Name: dep.Name,
 		}
 		resultDeps = append(resultDeps, depPreview)
-		err := s.recursion(ctx, depPreview, func(d domain.DepartmentPreview) {
+		err := s.findChildren(ctx, depPreview, func(d domain.DepartmentPreview) {
 			arr = append(arr, d)
 		})
 		if err != nil {
@@ -50,7 +50,7 @@ func (s *service) GetDepartments(ctx context.Context, companyId int) ([]domain.D
 	return resultDeps, nil
 }
 
-func (s *service) recursion(ctx context.Context, department domain.DepartmentPreview, addToParentDepartment func(domain.DepartmentPreview)) error {
+func (s *service) findChildren(ctx context.Context, department domain.DepartmentPreview, addToParentDepartment func(domain.DepartmentPreview)) error {
 	childDepartments, err := s.repository.GetChildDepartments(ctx, department.Id)
 	if err != nil {
 		return err
@@ -62,7 +62,7 @@ func (s *service) recursion(ctx context.Context, department domain.DepartmentPre
 			CountOfEmployees: count,
 			Departments:      &arr, Id: dep.Id, Name: dep.Name,
 		}
-		err := s.recursion(ctx, normDep, func(d domain.DepartmentPreview) {
+		err := s.findChildren(ctx, normDep, func(d domain.DepartmentPreview) {
 			arr = append(arr, d)
 		})
 		if err != nil {
