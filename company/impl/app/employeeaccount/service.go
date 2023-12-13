@@ -29,13 +29,11 @@ type service struct {
 }
 
 func (s *service) CreateEmployee(ctx context.Context, dto domain.EmployeeRequest, requestInfo network.RequestInfo) error {
-	//создаём юзера или берём уже созданного
 	userId, err := s.createUserOrGetExisting(dto.Email)
 	if err != nil {
 		return nil
 	}
 
-	//проверяем, состоит ли он в данной компании
 	_, err = s.repository.GetCompanyEmployee(ctx, userId, requestInfo.CompanyId)
 	if !errors.Is(err, EmployeeNotFound) {
 		return EmployeeAlreadyExists
@@ -46,7 +44,6 @@ func (s *service) CreateEmployee(ctx context.Context, dto domain.EmployeeRequest
 		return err
 	}
 
-	//после создания сотрудника добавляем его в департамент
 	if dto.DepartmentID != nil {
 		createdEmployee, err := s.repository.GetCompanyEmployee(ctx, userId, requestInfo.CompanyId)
 		if err != nil {
@@ -75,24 +72,19 @@ func (s *service) createUserOrGetExisting(Email string) (int, error) {
 }
 
 func (s *service) GetEmployee(ctx context.Context, id int) (domain.EmployeeWithConnections, error) {
-	// один запрос в репо, где подтягивается employee со всеми нужными связями (User, Company, department)
 	return s.repository.GetEmployee(ctx, id)
 }
 
 func (s *service) DeleteEmployee(ctx context.Context, id int, requestInfo network.RequestInfo) error {
 
-	//удаление
 	return nil
 }
 
 func (s *service) EditEmployee(ctx context.Context, id int, dto domain.EmployeeRequest, requestInfo network.RequestInfo) error {
-	//редактирование данных в таблице EmployeeAccount
-	//редактирование данных в таблице User
 	return nil
 }
 
 func (s *service) MoveEmployeesToDepartment(ctx context.Context, dto domain.MoveEmployeesRequest) error {
-	//редактирование данных в таблице Employee_department
 	for _, l := range dto.Employees {
 		if l.DepartmentFromID != nil {
 			err := s.repository.MoveEmployeeToDepartment(ctx, l.EmployeeID, *l.DepartmentFromID, dto.DepartmentToID)

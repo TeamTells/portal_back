@@ -53,7 +53,6 @@ func (f frontendServer) GetDepartments(w http.ResponseWriter, r *http.Request) {
 func (f frontendServer) CreateDepartment(w http.ResponseWriter, r *http.Request) {
 	//TODO implement me
 	panic("implement me")
-	//проверка на права (обращение в модуль ролей)
 }
 
 func (f frontendServer) GetDepartment(w http.ResponseWriter, r *http.Request, departmentId int) {
@@ -64,13 +63,11 @@ func (f frontendServer) GetDepartment(w http.ResponseWriter, r *http.Request, de
 func (f frontendServer) DeleteDepartment(w http.ResponseWriter, r *http.Request, departmentId int) {
 	//TODO implement me
 	panic("implement me")
-	//проверка на права (обращение в модуль ролей)
 }
 
 func (f frontendServer) EditDepartment(w http.ResponseWriter, r *http.Request, departmentId int) {
 	//TODO implement me
 	panic("implement me")
-	//проверка на права (обращение в модуль ролей)
 }
 
 func (f frontendServer) GetEmployees(w http.ResponseWriter, r *http.Request) {
@@ -81,13 +78,11 @@ func (f frontendServer) GetEmployees(w http.ResponseWriter, r *http.Request) {
 func (f frontendServer) CreateEmployee(w http.ResponseWriter, r *http.Request) {
 	//TODO implement me
 	panic("implement me")
-	//проверка на права (обращение в модуль ролей)
 }
 
 func (f frontendServer) MoveEmployeesToDepartment(w http.ResponseWriter, r *http.Request) {
 	//TODO implement me
 	panic("implement me")
-	//проверка на права (обращение в модуль ролей)
 }
 
 func (f frontendServer) GetEmployee(w http.ResponseWriter, r *http.Request, employeeId int) {
@@ -130,11 +125,9 @@ func (f frontendServer) GetEmployee(w http.ResponseWriter, r *http.Request, empl
 func (f frontendServer) DeleteEmployee(w http.ResponseWriter, r *http.Request, employeeId int) {
 	//TODO implement me
 	panic("implement me")
-	//проверка на права (обращение в модуль ролей)
 }
 
 func (f frontendServer) EditEmployee(w http.ResponseWriter, r *http.Request, employeeId int) {
 	//TODO implement me
 	panic("implement me")
-	//проверка на права (обращение в модуль ролей)
 }

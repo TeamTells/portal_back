@@ -16,7 +16,7 @@ type Service interface {
 	GetEmployees(ctx context.Context, companyId int) error
 }
 
-var DepartmentEmployeesNotFound = errors.New("employees in this department not found")
+var EmployeesNotFound = errors.New("employees in this department not found")
 
 func NewService(repository Repository) Service {
 	return &service{repository: repository}
