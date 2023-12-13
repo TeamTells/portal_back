@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"portal_back/authentication/api/internalapi"
 	"portal_back/company/api/frontend"
+	"portal_back/company/impl/app/department"
 	"portal_back/company/impl/app/employeeaccount"
 	"portal_back/company/impl/infrastructure/sql"
 	"portal_back/company/impl/infrastructure/transport"
@@ -13,10 +14,13 @@ import (
 
 func InitCompanyModule(authApi internalapi.AuthRequestService, rolesApi rolesapi.RolesRequestService, conn *pgx.Conn) {
 
-	repo := sql.NewEmployeeAccountRepository(conn)
-	accountService := employeeaccount.NewService(repo, authApi)
+	accountRepo := sql.NewEmployeeAccountRepository(conn)
+	accountService := employeeaccount.NewService(accountRepo, authApi)
 
-	server := transport.NewServer(accountService, rolesApi)
+	departmentRepo := sql.NewDepartmentRepository(conn)
+	departmentService := department.NewService(departmentRepo)
+
+	server := transport.NewServer(accountService, departmentService, rolesApi, authApi)
 
 	http.Handle("/", frontendapi.Handler(server))
 }

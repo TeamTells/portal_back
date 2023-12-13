@@ -13,7 +13,7 @@ func NewService() internalapi.AuthRequestService {
 type service struct {
 }
 
-func (s *service) GetUserIdByEmail(ctx context.Context, email string) (*int, error) {
+func (s *service) GetUserId(ctx context.Context, email string) (int, error) {
 	//TODO implement me
 	panic("implement me")
 }

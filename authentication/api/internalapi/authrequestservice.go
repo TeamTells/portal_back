@@ -11,5 +11,5 @@ var UserAlreadyExists = errors.New("user with this email already exists")
 type AuthRequestService interface {
 	IsAuthenticated(token string) model.AuthValidationResult
 	CreateNewUser(ctx context.Context, email string) error
-	GetUserIdByEmail(ctx context.Context, email string) (*int, error)
+	GetUserId(ctx context.Context, email string) (int, error)
 }

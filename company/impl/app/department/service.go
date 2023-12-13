@@ -2,18 +2,21 @@ package department
 
 import (
 	"context"
+	"errors"
 	"portal_back/company/impl/domain"
 	"portal_back/core/network"
 )
 
 type Service interface {
-	GetCompanyDepartments(ctx context.Context, companyId int) (*[]domain.DepartmentPreview, error)
+	GetCompanyDepartments(ctx context.Context, companyId int) ([]domain.DepartmentPreview, error)
 	CreateNewDepartment(ctx context.Context, dto domain.DepartmentRequest, requestInfo network.RequestInfo) error
 	GetDepartment(ctx context.Context, id int) (domain.Department, error)
 	DeleteDepartment(ctx context.Context, id int, requestInfo network.RequestInfo) error
 	EditDepartment(ctx context.Context, id int, dto domain.DepartmentRequest, requestInfo network.RequestInfo) error
 	GetCompanyDepartmentsWithEmployees(ctx context.Context, companyId int) error
 }
+
+var DepartmentEmployeesNotFound = errors.New("employees in this department not found")
 
 func NewService(repository Repository) Service {
 	return &service{repository: repository}
@@ -23,30 +26,28 @@ type service struct {
 	repository Repository
 }
 
-func (s *service) GetCompanyDepartments(ctx context.Context, companyId int) (*[]domain.DepartmentPreview, error) {
-
+func (s *service) GetCompanyDepartments(ctx context.Context, companyId int) ([]domain.DepartmentPreview, error) {
 	rootDepartments, err := s.repository.GetRootCompanyDepartments(ctx, companyId)
 	if err != nil {
 		return nil, err
 	}
 	var resultDeps []domain.DepartmentPreview
-
 	for _, dep := range rootDepartments {
 		count, _ := s.repository.GetCountOfDepartmentEmployees(ctx, dep.Id)
 		var arr []domain.DepartmentPreview
-		normDep := domain.DepartmentPreview{
+		depPreview := domain.DepartmentPreview{
 			CountOfEmployees: count,
 			Departments:      &arr, Id: dep.Id, Name: dep.Name,
 		}
-		resultDeps = append(resultDeps, normDep)
-		err := s.recursion(ctx, normDep, func(d domain.DepartmentPreview) {
+		resultDeps = append(resultDeps, depPreview)
+		err := s.recursion(ctx, depPreview, func(d domain.DepartmentPreview) {
 			arr = append(arr, d)
 		})
 		if err != nil {
 			return nil, err
 		}
 	}
-	return &resultDeps, nil
+	return resultDeps, nil
 }
 
 func (s *service) recursion(ctx context.Context, department domain.DepartmentPreview, addToParentDepartment func(domain.DepartmentPreview)) error {

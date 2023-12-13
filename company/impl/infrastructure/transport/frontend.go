@@ -5,24 +5,49 @@ import (
 	"errors"
 	openapi_types "github.com/oapi-codegen/runtime/types"
 	"net/http"
+	authInteralapi "portal_back/authentication/api/internalapi"
 	"portal_back/company/api/frontend"
+	"portal_back/company/impl/app/department"
 	"portal_back/company/impl/app/employeeaccount"
 	"portal_back/company/impl/infrastructure/mapper"
+	"portal_back/core/network"
 	"portal_back/roles/api/internalapi"
 )
 
-func NewServer(accountService employeeaccount.Service, rolesService internalapi.RolesRequestService) frontendapi.ServerInterface {
-	return &frontendServer{accountService, rolesService}
+func NewServer(accountService employeeaccount.Service, departmentService department.Service, rolesService internalapi.RolesRequestService, authRequestService authInteralapi.AuthRequestService) frontendapi.ServerInterface {
+	return &frontendServer{accountService, departmentService, rolesService, authRequestService}
 }
 
 type frontendServer struct {
-	accountService employeeaccount.Service
-	rolesService   internalapi.RolesRequestService
+	accountService     employeeaccount.Service
+	departmentService  department.Service
+	rolesService       internalapi.RolesRequestService
+	authRequestService authInteralapi.AuthRequestService
 }
 
 func (f frontendServer) GetCompanyDepartments(w http.ResponseWriter, r *http.Request) {
-	//TODO implement me
-	panic("implement me")
+	network.Wrap(f.authRequestService, w, r, func(info network.RequestInfo) {
+		departments, err := f.departmentService.GetCompanyDepartments(r.Context(), info.CompanyId)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		resp, err := json.Marshal(mapper.MapDepartmentsPreview(departments))
+
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		_, err = w.Write(resp)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+	})
 }
 
 func (f frontendServer) CreateNewDepartment(w http.ResponseWriter, r *http.Request) {
@@ -73,7 +98,7 @@ func (f frontendServer) GetEmployee(w http.ResponseWriter, r *http.Request, empl
 		w.WriteHeader(http.StatusNotFound)
 	} else if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-	} else if err == nil {
+	} else {
 		resp, err := json.Marshal(frontendapi.EmployeeWithConnections{
 			Id:              employee.Id,
 			Company:         frontendapi.Company{Id: employee.Company.Id, Name: employee.Company.Name},

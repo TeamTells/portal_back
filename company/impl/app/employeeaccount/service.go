@@ -36,12 +36,8 @@ func (s *service) CreateEmployee(ctx context.Context, dto domain.EmployeeRequest
 	}
 
 	//проверяем, состоит ли он в данной компании
-	employee, err := s.repository.GetEmployeeByUserAndCompanyIds(ctx, userId, requestInfo.CompanyId)
-	if err != nil {
-		return err
-	}
-	//если уже состоит, кидаем ошибку
-	if employee != nil {
+	_, err = s.repository.GetEmployeeByUserAndCompanyIds(ctx, userId, requestInfo.CompanyId)
+	if !errors.Is(err, EmployeeNotFound) {
 		return EmployeeAlreadyExists
 	}
 
@@ -69,13 +65,13 @@ func (s *service) createUserOrGetExisting(ctx context.Context, Email string) (in
 		return -1, createUserErr
 	}
 
-	userId, getUserErr := s.authService.GetUserIdByEmail(ctx, Email)
+	userId, getUserErr := s.authService.GetUserId(ctx, Email)
 
 	if getUserErr != nil {
 		return -1, getUserErr
 	}
 
-	return *userId, nil
+	return userId, nil
 }
 
 func (s *service) GetEmployee(ctx context.Context, id int) (domain.EmployeeWithConnections, error) {
@@ -98,9 +94,16 @@ func (s *service) EditEmployee(ctx context.Context, id int, dto domain.EmployeeR
 func (s *service) MoveEmployeesToDepartment(ctx context.Context, dto domain.MoveEmployeesRequest) error {
 	//редактирование данных в таблице Employee_department
 	for _, l := range dto.Employees {
-		err := s.repository.MoveEmployeeToDepartment(ctx, l.EmployeeID, l.DepartmentFromID, dto.DepartmentToID)
-		if err != nil {
-			return err
+		if l.DepartmentFromID != nil {
+			err := s.repository.MoveEmployeeToDepartment(ctx, l.EmployeeID, *l.DepartmentFromID, dto.DepartmentToID)
+			if err != nil {
+				return err
+			}
+		} else {
+			err := s.repository.AddEmployeeToDepartment(ctx, l.EmployeeID, dto.DepartmentToID)
+			if err != nil {
+				return err
+			}
 		}
 	}
 	return nil
