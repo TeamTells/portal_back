@@ -12,7 +12,7 @@ tags:
 paths:
   /department/all:
     get:
-      operationId: GetCompanyDepartments
+      operationId: GetDepartments
       tags:
         - Departments
       description: Получить список всех департаментов
@@ -94,7 +94,7 @@ paths:
           description: Unauthorized
   /department/create:
     post:
-      operationId: CreateNewDepartment
+      operationId: CreateDepartment
       tags:
         - Departments
       description: Создать департамент
@@ -132,7 +132,7 @@ paths:
           
   /employee/all:
     get:
-      operationId: GetCompanyDepartmentsWithEmployees
+      operationId: GetEmployees
       tags:
         - Employee
       description: Возвращает все департаменты компании вместе с сотрудниками (компания, департаменты которой нужно возвращать, определяется по токену пользователя, который отправил запрос).<br> Возможна высокая вложенность департаментов

@@ -25,9 +25,9 @@ type frontendServer struct {
 	authRequestService authInteralapi.AuthRequestService
 }
 
-func (f frontendServer) GetCompanyDepartments(w http.ResponseWriter, r *http.Request) {
+func (f frontendServer) GetDepartments(w http.ResponseWriter, r *http.Request) {
 	network.Wrap(f.authRequestService, w, r, func(info network.RequestInfo) {
-		departments, err := f.departmentService.GetCompanyDepartments(r.Context(), info.CompanyId)
+		departments, err := f.departmentService.GetDepartments(r.Context(), info.CompanyId)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			return
@@ -50,7 +50,7 @@ func (f frontendServer) GetCompanyDepartments(w http.ResponseWriter, r *http.Req
 	})
 }
 
-func (f frontendServer) CreateNewDepartment(w http.ResponseWriter, r *http.Request) {
+func (f frontendServer) CreateDepartment(w http.ResponseWriter, r *http.Request) {
 	//TODO implement me
 	panic("implement me")
 	//проверка на права (обращение в модуль ролей)
@@ -73,7 +73,7 @@ func (f frontendServer) EditDepartment(w http.ResponseWriter, r *http.Request, d
 	//проверка на права (обращение в модуль ролей)
 }
 
-func (f frontendServer) GetCompanyDepartmentsWithEmployees(w http.ResponseWriter, r *http.Request) {
+func (f frontendServer) GetEmployees(w http.ResponseWriter, r *http.Request) {
 	//TODO implement me
 	panic("implement me")
 }

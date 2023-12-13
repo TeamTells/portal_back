@@ -36,7 +36,7 @@ func (s *service) CreateEmployee(ctx context.Context, dto domain.EmployeeRequest
 	}
 
 	//проверяем, состоит ли он в данной компании
-	_, err = s.repository.GetEmployeeByUserAndCompanyIds(ctx, userId, requestInfo.CompanyId)
+	_, err = s.repository.GetCompanyEmployee(ctx, userId, requestInfo.CompanyId)
 	if !errors.Is(err, EmployeeNotFound) {
 		return EmployeeAlreadyExists
 	}
@@ -48,7 +48,7 @@ func (s *service) CreateEmployee(ctx context.Context, dto domain.EmployeeRequest
 
 	//после создания сотрудника добавляем его в департамент
 	if dto.DepartmentID != nil {
-		createdEmployee, err := s.repository.GetEmployeeByUserAndCompanyIds(ctx, userId, requestInfo.CompanyId)
+		createdEmployee, err := s.repository.GetCompanyEmployee(ctx, userId, requestInfo.CompanyId)
 		if err != nil {
 			return err
 		}

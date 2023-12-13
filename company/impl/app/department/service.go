@@ -8,12 +8,12 @@ import (
 )
 
 type Service interface {
-	GetCompanyDepartments(ctx context.Context, companyId int) ([]domain.DepartmentPreview, error)
-	CreateNewDepartment(ctx context.Context, dto domain.DepartmentRequest, requestInfo network.RequestInfo) error
+	GetDepartments(ctx context.Context, companyId int) ([]domain.DepartmentPreview, error)
+	CreateDepartment(ctx context.Context, dto domain.DepartmentRequest, requestInfo network.RequestInfo) error
 	GetDepartment(ctx context.Context, id int) (domain.Department, error)
 	DeleteDepartment(ctx context.Context, id int, requestInfo network.RequestInfo) error
 	EditDepartment(ctx context.Context, id int, dto domain.DepartmentRequest, requestInfo network.RequestInfo) error
-	GetCompanyDepartmentsWithEmployees(ctx context.Context, companyId int) error
+	GetEmployees(ctx context.Context, companyId int) error
 }
 
 var DepartmentEmployeesNotFound = errors.New("employees in this department not found")
@@ -26,14 +26,14 @@ type service struct {
 	repository Repository
 }
 
-func (s *service) GetCompanyDepartments(ctx context.Context, companyId int) ([]domain.DepartmentPreview, error) {
-	rootDepartments, err := s.repository.GetRootCompanyDepartments(ctx, companyId)
+func (s *service) GetDepartments(ctx context.Context, companyId int) ([]domain.DepartmentPreview, error) {
+	rootDepartments, err := s.repository.GetCompanyDepartments(ctx, companyId)
 	if err != nil {
 		return nil, err
 	}
 	var resultDeps []domain.DepartmentPreview
 	for _, dep := range rootDepartments {
-		count, _ := s.repository.GetCountOfDepartmentEmployees(ctx, dep.Id)
+		count, _ := s.repository.GetCountOfEmployees(ctx, dep.Id)
 		var arr []domain.DepartmentPreview
 		depPreview := domain.DepartmentPreview{
 			CountOfEmployees: count,
@@ -56,7 +56,7 @@ func (s *service) recursion(ctx context.Context, department domain.DepartmentPre
 		return err
 	}
 	for _, dep := range childDepartments {
-		count, _ := s.repository.GetCountOfDepartmentEmployees(ctx, dep.Id)
+		count, _ := s.repository.GetCountOfEmployees(ctx, dep.Id)
 		var arr []domain.DepartmentPreview
 		normDep := domain.DepartmentPreview{
 			CountOfEmployees: count,
@@ -73,7 +73,7 @@ func (s *service) recursion(ctx context.Context, department domain.DepartmentPre
 	return nil
 }
 
-func (s *service) CreateNewDepartment(ctx context.Context, dto domain.DepartmentRequest, requestInfo network.RequestInfo) error {
+func (s *service) CreateDepartment(ctx context.Context, dto domain.DepartmentRequest, requestInfo network.RequestInfo) error {
 	//TODO implement me
 	panic("implement me")
 }
@@ -93,7 +93,7 @@ func (s *service) EditDepartment(ctx context.Context, id int, dto domain.Departm
 	panic("implement me")
 }
 
-func (s *service) GetCompanyDepartmentsWithEmployees(ctx context.Context, companyId int) error {
+func (s *service) GetEmployees(ctx context.Context, companyId int) error {
 	//TODO implement me
 	panic("implement me")
 }
