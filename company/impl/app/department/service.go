@@ -40,9 +40,7 @@ func (s *service) GetDepartments(ctx context.Context, companyId int) ([]domain.D
 			Departments:      &arr, Id: dep.Id, Name: dep.Name,
 		}
 		resultDeps = append(resultDeps, depPreview)
-		err := s.findChildren(ctx, depPreview, func(d domain.DepartmentPreview) {
-			arr = append(arr, d)
-		})
+		err := s.findChildren(ctx, depPreview)
 		if err != nil {
 			return nil, err
 		}
@@ -50,7 +48,7 @@ func (s *service) GetDepartments(ctx context.Context, companyId int) ([]domain.D
 	return resultDeps, nil
 }
 
-func (s *service) findChildren(ctx context.Context, department domain.DepartmentPreview, addToParentDepartment func(domain.DepartmentPreview)) error {
+func (s *service) findChildren(ctx context.Context, department domain.DepartmentPreview) error {
 	childDepartments, err := s.repository.GetChildDepartments(ctx, department.Id)
 	if err != nil {
 		return err
@@ -62,14 +60,12 @@ func (s *service) findChildren(ctx context.Context, department domain.Department
 			CountOfEmployees: count,
 			Departments:      &arr, Id: dep.Id, Name: dep.Name,
 		}
-		err := s.findChildren(ctx, normDep, func(d domain.DepartmentPreview) {
-			arr = append(arr, d)
-		})
+		*department.Departments = append(*department.Departments, normDep)
+		err := s.findChildren(ctx, normDep)
 		if err != nil {
 			return err
 		}
 	}
-	addToParentDepartment(department)
 	return nil
 }
 

@@ -3,16 +3,16 @@ package domain
 type Department struct {
 	Id               int
 	Name             string
-	ParentDepartment *parentDepartment
-	Supervisor       *supervisor
+	ParentDepartment *ParentDepartment
+	Supervisor       *Supervisor
 }
 
-type parentDepartment struct {
+type ParentDepartment struct {
 	Id   int
 	Name string
 }
 
-type supervisor struct {
+type Supervisor struct {
 	Id   int
 	Name string
 }
