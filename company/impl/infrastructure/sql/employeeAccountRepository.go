@@ -53,7 +53,7 @@ func (r employeeAccountRepository) GetEmployee(ctx context.Context, id int) (dom
 	rows, err = r.conn.Query(ctx, query, id)
 	for rows.Next() {
 		var departmentInfo domain.DepartmentInfo
-		err = rows.Scan(departmentInfo.Id, departmentInfo.Name)
+		err = rows.Scan(&departmentInfo.Id, &departmentInfo.Name)
 		if err != nil {
 			return employee, err
 		}
@@ -68,7 +68,7 @@ func (r employeeAccountRepository) GetEmployee(ctx context.Context, id int) (dom
 	rows, err = r.conn.Query(ctx, query, id)
 	for rows.Next() {
 		var roleInfo domain.RoleInfo
-		err = rows.Scan(roleInfo.Id, roleInfo.Name)
+		err = rows.Scan(&roleInfo.Id, &roleInfo.Name)
 		if err != nil {
 			return employee, err
 		}
@@ -77,7 +77,7 @@ func (r employeeAccountRepository) GetEmployee(ctx context.Context, id int) (dom
 	return employee, nil
 }
 
-func (r employeeAccountRepository) GetEmployeeByUserAndCompanyIds(ctx context.Context, userId int, companyId int) (*domain.EmployeeWithConnections, error) {
+func (r employeeAccountRepository) GetCompanyEmployee(ctx context.Context, userId int, companyId int) (domain.EmployeeWithConnections, error) {
 	//TODO implement me
 	panic("implement me")
 }
@@ -92,7 +92,7 @@ func (r employeeAccountRepository) EditEmployee(ctx context.Context, id int, dto
 	panic("implement me")
 }
 
-func (r employeeAccountRepository) MoveEmployeeToDepartment(ctx context.Context, employeeId int, departmentFromId *int, departmentToId int) error {
+func (r employeeAccountRepository) MoveEmployeeToDepartment(ctx context.Context, employeeId int, departmentFromId int, departmentToId int) error {
 	//TODO implement me
 	panic("implement me")
 }
