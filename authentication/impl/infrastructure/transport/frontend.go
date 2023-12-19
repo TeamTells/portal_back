@@ -19,8 +19,8 @@ type frontendServer struct {
 	tokenService token.Service
 }
 
-func (s *frontendServer) GetSaltByEmail(w http.ResponseWriter, r *http.Request, email string) {
-	salt, err := s.authService.GetSaltByEmail(r.Context(), email)
+func (s *frontendServer) GetSaltByLogin(w http.ResponseWriter, r *http.Request, login string) {
+	salt, err := s.authService.GetSaltByLogin(r.Context(), login)
 	if err == auth.ErrUserNotFound {
 		w.WriteHeader(http.StatusNotFound)
 	} else if err != nil {
@@ -56,7 +56,7 @@ func (s *frontendServer) Login(w http.ResponseWriter, r *http.Request) {
 	loginData, err := s.authService.Login(
 		r.Context(),
 		auth.LoginData{
-			Email:    *loginReq.Email,
+			Login:    *loginReq.Login,
 			Password: *loginReq.Password,
 		})
 

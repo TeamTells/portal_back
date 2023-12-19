@@ -1,6 +1,8 @@
-package di
+package cmd
 
 import (
+	"context"
+	"fmt"
 	"github.com/jackc/pgx/v5"
 	"net/http"
 	"portal_back/authentication/api/frontend"
@@ -8,22 +10,27 @@ import (
 	"portal_back/authentication/impl/app/auth"
 	"portal_back/authentication/impl/app/authrequest"
 	"portal_back/authentication/impl/app/token"
-	"portal_back/authentication/impl/app/userrequest"
 	"portal_back/authentication/impl/infrastructure/sql"
 	"portal_back/authentication/impl/infrastructure/transport"
+
+	_ "github.com/golang-migrate/migrate/v4/source/file"
+	_ "github.com/lib/pq"
 )
 
-func InitAuthModule(conn *pgx.Conn) (internalapi.AuthRequestService, internalapi.UserRequestService) {
-	repo := sql.NewTokenStorage(conn)
-	tokenService := token.NewService(repo)
+func InitAuthModule(config Config) (internalapi.AuthRequestService, *pgx.Conn, error) {
+	connStr := fmt.Sprintf("postgres://%s:%s@%s:5432/%s", config.DBUser, config.DBPassword, config.DBHost, config.DBName)
+
+	conn, _ := pgx.Connect(context.Background(), connStr)
+
+	repoId := sql.NewTokenStorage(conn)
+	tokenService := token.NewService(repoId)
 
 	authRepo := sql.NewAuthRepository(conn)
 	authService := auth.NewService(authRepo, tokenService)
 	server := transport.NewServer(authService, tokenService)
 	authRequestService := authrequest.NewService()
-	userRequestService := userrequest.NewService()
 
 	http.Handle("/authorization/", frontendapi.Handler(server))
 
-	return authRequestService, userRequestService
+	return authRequestService, conn, nil
 }

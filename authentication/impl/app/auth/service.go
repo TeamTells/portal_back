@@ -10,12 +10,12 @@ var ErrUserNotFound = errors.New("user not found")
 var ErrUserNotLogged = errors.New("user not logged")
 
 type LoginData struct {
-	Email    string
+	Login    string
 	Password string
 }
 
 type Service interface {
-	GetSaltByEmail(ctx context.Context, email string) (string, error)
+	GetSaltByLogin(ctx context.Context, login string) (string, error)
 	Login(ctx context.Context, logData LoginData) (token.LoginData, error)
 	Logout(ctx context.Context, token string) error
 }
@@ -29,12 +29,12 @@ type service struct {
 	tokenService token.Service
 }
 
-func (s *service) GetSaltByEmail(ctx context.Context, email string) (string, error) {
-	return s.repository.GetSaltByEmail(ctx, email)
+func (s *service) GetSaltByLogin(ctx context.Context, login string) (string, error) {
+	return s.repository.GetSaltByLogin(ctx, login)
 }
 
 func (s *service) Login(ctx context.Context, logData LoginData) (token.LoginData, error) {
-	password, err := s.repository.GetPasswordByEmail(ctx, logData.Email)
+	password, err := s.repository.GetPasswordByLogin(ctx, logData.Login)
 	if err != nil {
 		return token.LoginData{}, err
 	}
@@ -42,7 +42,7 @@ func (s *service) Login(ctx context.Context, logData LoginData) (token.LoginData
 		return token.LoginData{}, ErrUserNotFound
 	}
 
-	userID, err := s.repository.GetUserIDByEmail(ctx, logData.Email)
+	userID, err := s.repository.GetUserIDByLogin(ctx, logData.Login)
 	if err != nil {
 		return token.LoginData{}, err
 	}
