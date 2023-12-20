@@ -17,43 +17,7 @@ Configure GoLand run config with the following env vars:
 
 Для работы с бд
 1. установить postgres
-2. создать две таблицы, либо выполнить миграции
-
-```
-CREATE TABLE auth_user
-(
-    id serial primary key,
-    login character varying(256) NOT NULL,
-    salt character varying(256) NOT NULL,
-    password character varying(256) NOT NULL
-);
-
-CREATE TABLE tokens
-(
-    id serial primary key,
-    user_id integer NOT NULL,
-    token character varying(256) NOT NULL
-);
-```
-
-3. В отдельной бд для документов
-```
-CREATE TABLE sections
-(
-    id serial primary key,
-    title character varying(256) NOT NULL,
-    thumbnail_url character varying(256) NOT NULL,
-    is_favorite boolean NOT NULL,
-    company_id integer NOT NULL
-);
-
-create table user_sections_prefs(
-	user_id integer NOT NULL,
-	section_id integer NOT NULL,
-	FOREIGN KEY (section_id) REFERENCES sections(id),
-	PRIMARY KEY (user_id, section_id)
-)
-```
+2. миграции выполнятся автоматически
 
 ## Миграции
 
