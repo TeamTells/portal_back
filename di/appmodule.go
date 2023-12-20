@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 	authcmd "portal_back/authentication/cmd"
+	"portal_back/documentation/cmd"
 	di2 "portal_back/documentation/impl/di"
 )
 
@@ -16,7 +17,7 @@ func InitAppModule() {
 	}
 	defer authConn.Close(context.Background())
 
-	documentConnection := di2.InitDocumentModule(authService)
+	documentConnection := di2.InitDocumentModule(authService, cmd.NewConfig())
 	defer documentConnection.Close(context.Background())
 
 	// можно инжектить в другие модули
@@ -33,7 +34,7 @@ func InitAppModule() {
 	}
 }
 
-func migrate() {
+func Migrate() {
 	err := authcmd.Migrate(authcmd.NewConfig())
 	if err != nil {
 		log.Fatal("failed migrate auth module:", err)
