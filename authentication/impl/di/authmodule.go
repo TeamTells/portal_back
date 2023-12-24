@@ -56,23 +56,8 @@ func InitAuthModule() (internalapi.AuthRequestService, *pgx.Conn) {
 		BaseRouter: router,
 		Middlewares: []frontendapi.MiddlewareFunc{func(handler http.Handler) http.Handler {
 			return http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				println("1111111")
-				w.Header().Set("Access-Control-Allow-Origin", "http://localhost:4200")
-				w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, PATCH, DELETE")
-				w.Header().Set("Access-Control-Allow-Headers", "Authorization, Content-Type")
-				w.Header().Set("Access-Control-Allow-Credentials", "true")
+				setCorsHeaders(w)
 				handler.ServeHTTP(w, r)
-
-				//if r.Method == http.MethodOptions {
-				//	println("333333")
-				//
-				//	w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, PATCH, DELETE")
-				//	w.Header().Set("Access-Control-Allow-Headers", "Authorization, Content-Type")
-				//	w.Header().Set("Access-Control-Allow-Credentials", "true")
-				//	_, _ = w.Write([]byte("OK"))
-				//} else {
-				//	handler.ServeHTTP(w, r)
-				//}
 			}))
 		}},
 	}
@@ -84,35 +69,16 @@ func InitAuthModule() (internalapi.AuthRequestService, *pgx.Conn) {
 
 func methodNotAllowedHandler() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		println("4444444")
-
 		if r.Header.Get("Access-Control-Request-Method") != "" {
-			println("2222222")
-
-			w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, PATCH, DELETE")
-			w.Header().Set("Access-Control-Allow-Headers", "Authorization, Content-Type")
-			w.Header().Set("Access-Control-Allow-Origin", "http://localhost:4200")
-			w.Header().Set("Access-Control-Allow-Credentials", "true")
-			//w.Header().Set("Access-Control-Max-Age", "86400")
+			setCorsHeaders(w)
 		}
-
 		w.WriteHeader(http.StatusNoContent)
 	})
 }
 
-func methodNotAllowedHandler2() http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		println("4444444")
-
-		w.Header().Set("Access-Control-Allow-Origin", "*")
-
-		if r.Method == http.MethodOptions {
-			println("333333")
-
-			w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, PATCH, DELETE")
-			w.Header().Set("Access-Control-Allow-Headers", "Authorization, Content-Type")
-			w.Header().Set("Access-Control-Allow-Credentials", "true")
-			_, _ = w.Write([]byte("OK"))
-		}
-	})
+func setCorsHeaders(w http.ResponseWriter) {
+	w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, PATCH, DELETE")
+	w.Header().Set("Access-Control-Allow-Headers", "Authorization, Content-Type, X-user-id, X-organization-id")
+	w.Header().Set("Access-Control-Allow-Origin", "http://localhost:4200")
+	w.Header().Set("Access-Control-Allow-Credentials", "true")
 }
