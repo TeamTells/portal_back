@@ -3,6 +3,7 @@ package di
 import (
 	"context"
 	"fmt"
+	"github.com/gorilla/mux"
 	"github.com/jackc/pgx/v5"
 	"net/http"
 	"os"
@@ -48,7 +49,70 @@ func InitAuthModule() (internalapi.AuthRequestService, *pgx.Conn) {
 	server := transport.NewServer(authService, tokenService)
 	authRequestService := authrequest.NewService()
 
-	http.Handle("/authorization/", frontendapi.Handler(server))
+	router := mux.NewRouter()
+	router.MethodNotAllowedHandler = methodNotAllowedHandler()
+
+	options := frontendapi.GorillaServerOptions{
+		BaseRouter: router,
+		Middlewares: []frontendapi.MiddlewareFunc{func(handler http.Handler) http.Handler {
+			return http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				println("1111111")
+				w.Header().Set("Access-Control-Allow-Origin", "http://localhost:4200")
+				w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, PATCH, DELETE")
+				w.Header().Set("Access-Control-Allow-Headers", "Authorization, Content-Type")
+				w.Header().Set("Access-Control-Allow-Credentials", "true")
+				handler.ServeHTTP(w, r)
+
+				//if r.Method == http.MethodOptions {
+				//	println("333333")
+				//
+				//	w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, PATCH, DELETE")
+				//	w.Header().Set("Access-Control-Allow-Headers", "Authorization, Content-Type")
+				//	w.Header().Set("Access-Control-Allow-Credentials", "true")
+				//	_, _ = w.Write([]byte("OK"))
+				//} else {
+				//	handler.ServeHTTP(w, r)
+				//}
+			}))
+		}},
+	}
+	r := frontendapi.HandlerWithOptions(server, options)
+	http.Handle("/authorization/", r)
 
 	return authRequestService, conn
+}
+
+func methodNotAllowedHandler() http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		println("4444444")
+
+		if r.Header.Get("Access-Control-Request-Method") != "" {
+			println("2222222")
+
+			w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, PATCH, DELETE")
+			w.Header().Set("Access-Control-Allow-Headers", "Authorization, Content-Type")
+			w.Header().Set("Access-Control-Allow-Origin", "http://localhost:4200")
+			w.Header().Set("Access-Control-Allow-Credentials", "true")
+			//w.Header().Set("Access-Control-Max-Age", "86400")
+		}
+
+		w.WriteHeader(http.StatusNoContent)
+	})
+}
+
+func methodNotAllowedHandler2() http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		println("4444444")
+
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+
+		if r.Method == http.MethodOptions {
+			println("333333")
+
+			w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, PATCH, DELETE")
+			w.Header().Set("Access-Control-Allow-Headers", "Authorization, Content-Type")
+			w.Header().Set("Access-Control-Allow-Credentials", "true")
+			_, _ = w.Write([]byte("OK"))
+		}
+	})
 }

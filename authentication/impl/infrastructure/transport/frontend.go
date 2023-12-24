@@ -36,7 +36,6 @@ func (s *frontendServer) GetSaltByLogin(w http.ResponseWriter, r *http.Request, 
 	//}
 
 	w.Header().Set("Content-Type", "application/json")
-	w.Header().Set("Access-Control-Allow-Origin", "*")
 
 	_, err = w.Write(resp)
 	if err != nil {
@@ -56,7 +55,6 @@ func (s *frontendServer) Login(w http.ResponseWriter, r *http.Request) {
 	})
 
 	w.Header().Set("Content-Type", "application/json")
-	w.Header().Set("Access-Control-Allow-Origin", "*")
 	_, err = w.Write(resp)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
