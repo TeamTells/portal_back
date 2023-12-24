@@ -79,6 +79,6 @@ func methodNotAllowedHandler() http.Handler {
 func setCorsHeaders(w http.ResponseWriter) {
 	w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, PATCH, DELETE")
 	w.Header().Set("Access-Control-Allow-Headers", "Authorization, Content-Type, X-user-id, X-organization-id")
-	w.Header().Set("Access-Control-Allow-Origin", "http://localhost:4200")
+	w.Header().Set("Access-Control-Allow-Origin", "https://dev4.env.teamtells.ru/")
 	w.Header().Set("Access-Control-Allow-Credentials", "true")
 }
