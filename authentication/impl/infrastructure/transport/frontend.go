@@ -2,6 +2,7 @@ package transport
 
 import (
 	"encoding/json"
+	"io/ioutil"
 	"net/http"
 	"portal_back/authentication/api/frontend"
 	"portal_back/authentication/impl/app/auth"
@@ -19,21 +20,19 @@ type frontendServer struct {
 }
 
 func (s *frontendServer) GetSaltByLogin(w http.ResponseWriter, r *http.Request, login string) {
-	//salt, err := s.authService.GetSaltByLogin(r.Context(), login)
-	//if err == auth.ErrUserNotFound {
-	//	w.WriteHeader(http.StatusNotFound)
-	//} else if err != nil {
-	//	w.WriteHeader(http.StatusInternalServerError)
-	//}
-
-	salt := "asfdasdf"
+	salt, err := s.authService.GetSaltByLogin(r.Context(), login)
+	if err == auth.ErrUserNotFound {
+		w.WriteHeader(http.StatusNotFound)
+	} else if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+	}
 
 	resp, err := json.Marshal(frontendapi.SaltResponse{
 		Salt: &salt,
 	})
-	//if err != nil {
-	//	w.WriteHeader(http.StatusInternalServerError)
-	//}
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+	}
 
 	w.Header().Set("Content-Type", "application/json")
 
@@ -44,70 +43,54 @@ func (s *frontendServer) GetSaltByLogin(w http.ResponseWriter, r *http.Request, 
 }
 
 func (s *frontendServer) Login(w http.ResponseWriter, r *http.Request) {
-	resp, err := json.Marshal(frontendapi.LoginResponse{
-		AccessJwtToken: "dsafasdf",
-		User: frontendapi.User{
-			Id: 1,
-		},
-		Company: frontendapi.Company{
-			Id: 1, // TODO Заменить на реальный
-		},
-	})
-
-	w.Header().Set("Content-Type", "application/json")
-	_, err = w.Write(resp)
+	reqBody, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	//reqBody, err := ioutil.ReadAll(r.Body)
-	//if err != nil {
-	//	w.WriteHeader(http.StatusInternalServerError)
-	//	return
-	//}
-	//var loginReq frontendapi.LoginRequest
-	//err = json.Unmarshal(reqBody, &loginReq)
-	//if err != nil {
-	//	w.WriteHeader(http.StatusBadRequest)
-	//	return
-	//}
-	//loginData, err := s.authService.Login(
-	//	r.Context(),
-	//	auth.LoginData{
-	//		Login:    *loginReq.Login,
-	//		Password: *loginReq.Password,
-	//	})
-	//
-	//if err == auth.ErrUserNotFound {
-	//	w.WriteHeader(http.StatusNotFound)
-	//} else if err != nil {
-	//	w.WriteHeader(http.StatusInternalServerError)
-	//} else if err == nil {
-	//
-	//	s.setRefreshTokenToCookie(w, loginData.Tokens.RefreshToken)
-	//
-	//	resp, err := json.Marshal(frontendapi.LoginResponse{
-	//		AccessJwtToken: loginData.Tokens.AccessToken,
-	//		User: frontendapi.User{
-	//			Id: loginData.User.Id,
-	//		},
-	//		Company: frontendapi.Company{
-	//			Id: 1, // TODO Заменить на реальный
-	//		},
-	//	})
-	//
-	//	if err != nil {
-	//		w.WriteHeader(http.StatusInternalServerError)
-	//		return
-	//	}
-	//
-	//	w.Header().Set("Content-Type", "application/json")
-	//	_, err = w.Write(resp)
-	//	if err != nil {
-	//		w.WriteHeader(http.StatusInternalServerError)
-	//		return
-	//	}
-	//}
+	var loginReq frontendapi.LoginRequest
+	err = json.Unmarshal(reqBody, &loginReq)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	loginData, err := s.authService.Login(
+		r.Context(),
+		auth.LoginData{
+			Login:    *loginReq.Login,
+			Password: *loginReq.Password,
+		})
+
+	if err == auth.ErrUserNotFound {
+		w.WriteHeader(http.StatusNotFound)
+	} else if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+	} else if err == nil {
+
+		s.setRefreshTokenToCookie(w, loginData.Tokens.RefreshToken)
+
+		resp, err := json.Marshal(frontendapi.LoginResponse{
+			AccessJwtToken: loginData.Tokens.AccessToken,
+			User: frontendapi.User{
+				Id: loginData.User.Id,
+			},
+			Company: frontendapi.Company{
+				Id: 1, // TODO Заменить на реальный
+			},
+		})
+
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		_, err = w.Write(resp)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+	}
 }
 
 func (s *frontendServer) RefreshToken(w http.ResponseWriter, r *http.Request) {
