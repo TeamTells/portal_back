@@ -6,21 +6,26 @@ import (
 	"net/http"
 	"os"
 	authcmd "portal_back/authentication/cmd"
-	di2 "portal_back/documentation/impl/di"
+	di "portal_back/authentication/cmd"
+	companycmd "portal_back/company/cmd"
+	documentationDi "portal_back/documentation/impl/di"
+	rolesDi "portal_back/roles/impl/di"
 )
 
 func InitAppModule() {
-	authService, authConn, err := authcmd.InitAuthModule(authcmd.NewConfig())
-	if err != nil {
-		log.Fatal("failed init auth module:", err)
-	}
+
+	authService, userRequestService, authConn, err := di.InitAuthModule(authcmd.NewConfig())
 	defer authConn.Close(context.Background())
 
-	documentConnection := di2.InitDocumentModule(authService)
+	documentConnection := documentationDi.InitDocumentModule(authService)
 	defer documentConnection.Close(context.Background())
 
 	// можно инжектить в другие модули
 	authService.IsAuthenticated("")
+
+	rolesModule := rolesDi.InitRolesModule()
+
+	companycmd.InitCompanyModule(companycmd.NewConfig(), authService, userRequestService, rolesModule)
 
 	appPort := os.Getenv("BACKEND_PORT")
 	if appPort == "" {

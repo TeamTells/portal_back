@@ -2,6 +2,7 @@ package sql
 
 import (
 	"context"
+	"database/sql"
 	"github.com/jackc/pgx/v5"
 	"portal_back/company/impl/app/department"
 	"portal_back/company/impl/domain"
@@ -15,6 +16,47 @@ type repository struct {
 	conn *pgx.Conn
 }
 
+func (r repository) MoveDepartment(ctx context.Context, departmentID int, newParentID int) error {
+	query := `
+		UPDATE department
+		SET parentdepartmentid=$2
+		WHERE id=$1
+	`
+	_, err := r.conn.Exec(ctx, query, departmentID, newParentID)
+	return err
+}
+
+func (r repository) MoveDepartmentToRoot(ctx context.Context, id int) error {
+	query := `
+		UPDATE department
+		SET parentdepartmentid=NULL
+		WHERE id=$1
+	`
+	_, err := r.conn.Exec(ctx, query, id)
+	return err
+}
+
+func (r repository) DeleteDepartment(ctx context.Context, id int) error {
+	query := `
+		DELETE FROM department
+		WHERE id=$1
+	`
+	_, err := r.conn.Exec(ctx, query, id)
+	return err
+}
+
+func (r repository) CreateDepartment(ctx context.Context, request domain.DepartmentRequest, companyId int) (int, error) {
+	query := `
+		INSERT INTO department
+		(name, parentdepartmentid, companyid, supervisorid)
+		VALUES ($1, $2, $3,	$4)
+		RETURNING id
+	`
+	lastInsertId := 0
+	err := r.conn.QueryRow(ctx, query, request.Name, request.ParentDepartmentID, companyId, request.SupervisorID).Scan(&lastInsertId)
+	return lastInsertId, err
+}
+
 func (r repository) GetDepartment(ctx context.Context, id int) (domain.Department, error) {
 	query := `
 		SELECT department.id, department.name, department.parentdepartmentid, parentDepartment.name, 
@@ -26,48 +68,32 @@ func (r repository) GetDepartment(ctx context.Context, id int) (domain.Departmen
 	`
 
 	var departmentInfo domain.Department
-	err := r.conn.QueryRow(ctx, query, id).Scan(&departmentInfo.Id, &departmentInfo.Name, &departmentInfo.ParentDepartment.Id,
-		&departmentInfo.ParentDepartment.Name, &departmentInfo.Supervisor.Id, &departmentInfo.Supervisor.Name)
+
+	var supervisorID, parentDepartmentID sql.NullInt32
+	var supervisorName, parentDepartmentName sql.NullString
+
+	err := r.conn.QueryRow(ctx, query, id).Scan(&departmentInfo.Id, &departmentInfo.Name, &parentDepartmentID,
+		&parentDepartmentName, &supervisorID, &supervisorName)
 	if err == pgx.ErrNoRows {
-		return departmentInfo, department.EmployeesNotFound
-	} else if err != nil {
+		return departmentInfo, department.NotFound
+	}
+	if err != nil {
 		return departmentInfo, err
+	}
+	if parentDepartmentID.Valid {
+		departmentInfo.ParentDepartment = &domain.ParentDepartment{
+			Id:   int(parentDepartmentID.Int32),
+			Name: parentDepartmentName.String,
+		}
+	}
+	if supervisorID.Valid {
+		departmentInfo.Supervisor = &domain.Supervisor{
+			Id:   int(supervisorID.Int32),
+			Name: supervisorName.String,
+		}
 	}
 
 	return departmentInfo, nil
-}
-
-func (r repository) GetDepartmentEmployees(ctx context.Context, departmentId int) ([]domain.Employee, error) {
-	query := `
-		SELECT employeeaccount.id, employeeaccount.firstname, employeeaccount.secondname, employeeaccount.surname,
-			employeeaccount.dateofbirth, auth_user.email
-		FROM employeeaccount
-		JOIN employee_department ON employeeaccount.id = employee_department.accountid
-		JOIN auth_user ON employeeaccount.userid = auth_user.id
-		WHERE employee_department.departmentid = $1
-	`
-
-	var departmentEmployees []domain.Employee
-	rows, err := r.conn.Query(ctx, query, departmentId)
-	if err == pgx.ErrNoRows {
-		return departmentEmployees, department.EmployeesNotFound
-	} else if err != nil {
-		return departmentEmployees, err
-	}
-	defer rows.Close()
-
-	for rows.Next() {
-		var departmentEmployee domain.Employee
-		err := rows.Scan(&departmentEmployee.Id, &departmentEmployee.FirstName, &departmentEmployee.SecondName,
-			&departmentEmployee.Surname, &departmentEmployee.DateOfBirth, &departmentEmployee.Email,
-			&departmentEmployee.Icon, &departmentEmployee.TelephoneNumber)
-		if err != nil {
-			return departmentEmployees, err
-		}
-		departmentEmployees = append(departmentEmployees, departmentEmployee)
-	}
-
-	return departmentEmployees, nil
 }
 
 func (r repository) GetChildDepartments(ctx context.Context, id int) ([]domain.Department, error) {
@@ -102,24 +128,6 @@ func (r repository) GetChildDepartments(ctx context.Context, id int) ([]domain.D
 	}
 
 	return childDepartments, nil
-}
-
-func (r repository) GetCountOfEmployees(ctx context.Context, departmentId int) (int, error) {
-	query := `
-		SELECT COUNT(*)
-		FROM employee_department
-		WHERE departmentid = $1
-	`
-
-	var countOfDepartmentEmployees int
-	err := r.conn.QueryRow(ctx, query, departmentId).Scan(&countOfDepartmentEmployees)
-	if err == pgx.ErrNoRows {
-		return 0, department.EmployeesNotFound
-	} else if err != nil {
-		return 0, err
-	}
-
-	return countOfDepartmentEmployees, nil
 }
 
 func (r repository) GetCompanyDepartments(ctx context.Context, companyId int) ([]domain.Department, error) {
