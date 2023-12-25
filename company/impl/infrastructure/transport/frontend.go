@@ -33,7 +33,12 @@ func (f frontendServer) GetDepartments(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		resp, err := json.Marshal(mapper.MapDepartmentsPreview(departments))
+		response := frontendapi.GetAllDepartmentsResponse{
+			Departments: mapper.MapDepartmentsPreview(departments),
+			IsEditable:  true,
+		}
+
+		resp, err := json.Marshal(response)
 
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
@@ -73,7 +78,12 @@ func (f frontendServer) GetDepartment(w http.ResponseWriter, r *http.Request, de
 		return
 	}
 
-	resp, err := json.Marshal(mapper.MapDepartment(departmentWithEmployees))
+	response := frontendapi.GetDepartmentResponse{
+		Department: mapper.MapDepartment(departmentWithEmployees),
+		IsEditable: true,
+	}
+
+	resp, err := json.Marshal(response)
 
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
@@ -114,7 +124,6 @@ func (f frontendServer) GetEmployees(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		var result frontendapi.GetAllEmployeesResponse
-
 		result.IsEditable = true
 
 		rootEmployees, err := f.accountService.GetRootEmployees(r.Context(), info.CompanyId)
@@ -187,18 +196,21 @@ func (f frontendServer) GetEmployee(w http.ResponseWriter, r *http.Request, empl
 	} else if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 	} else {
-		resp, err := json.Marshal(frontendapi.EmployeeWithConnections{
-			Id:              employee.Id,
-			Company:         frontendapi.Company{Id: employee.Company.Id, Name: employee.Company.Name},
-			DateOfBirth:     openapi_types.Date{Time: employee.DateOfBirth},
-			Departments:     mapper.MapDepartments(employee.Departments),
-			Email:           employee.Email,
-			FirstName:       employee.FirstName,
-			SecondName:      employee.SecondName,
-			Surname:         employee.Surname,
-			Icon:            employee.Icon,
-			TelephoneNumber: employee.TelephoneNumber,
-			Roles:           mapper.MapRoles(employee.Roles),
+		resp, err := json.Marshal(frontendapi.GetEmployeeResponse{
+			Employee: frontendapi.EmployeeWithConnections{
+				Id:              employee.Id,
+				Company:         frontendapi.Company{Id: employee.Company.Id, Name: employee.Company.Name},
+				DateOfBirth:     openapi_types.Date{Time: employee.DateOfBirth},
+				Departments:     mapper.MapDepartments(employee.Departments),
+				Email:           employee.Email,
+				FirstName:       employee.FirstName,
+				SecondName:      employee.SecondName,
+				Surname:         employee.Surname,
+				Icon:            employee.Icon,
+				TelephoneNumber: employee.TelephoneNumber,
+				Roles:           mapper.MapRoles(employee.Roles),
+			},
+			IsEditable: true,
 		})
 
 		if err != nil {
