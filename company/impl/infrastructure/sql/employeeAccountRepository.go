@@ -99,8 +99,7 @@ func (r employeeAccountRepository) GetDepartmentEmployees(ctx context.Context, d
 	for rows.Next() {
 		var departmentEmployee domain.Employee
 		err := rows.Scan(&departmentEmployee.Id, &departmentEmployee.FirstName, &departmentEmployee.SecondName,
-			&departmentEmployee.Surname, &departmentEmployee.DateOfBirth, &departmentEmployee.Email,
-			&departmentEmployee.Icon, &departmentEmployee.TelephoneNumber)
+			&departmentEmployee.Surname, &departmentEmployee.DateOfBirth, &departmentEmployee.Email)
 		if err != nil {
 			return departmentEmployees, err
 		}
