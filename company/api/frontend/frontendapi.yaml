@@ -130,7 +130,7 @@ paths:
         '401':
           description: Unauthorized
   /employee/list:
-    get:
+    post:
       operationId: GetEmployeeList
       tags:
         - Employee
