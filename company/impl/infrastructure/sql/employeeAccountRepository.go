@@ -247,8 +247,8 @@ func (r employeeAccountRepository) DeleteEmployee(ctx context.Context, id int) e
 func (r employeeAccountRepository) EditEmployee(ctx context.Context, id int, dto domain.EmployeeRequest) error {
 	query := `
 		UPDATE employeeaccount
-		SET firstname=$2, secondname=$3, surname=$4,
-		    telephonenumber=$5, avatarurl=$6, dateofbirth=$7,
+		SET (firstname, secondname, surname,
+		    telephonenumber, avatarurl, dateofbirth) =($2, $3, $4, $5,$6, $7 )
 		WHERE id=$1
 	`
 	_, err := r.conn.Exec(ctx, query, id, dto.FirstName, dto.SecondName, dto.Surname, dto.TelephoneNumber, dto.Icon, dto.DateOfBirth)

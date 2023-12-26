@@ -112,8 +112,19 @@ func (f frontendServer) DeleteDepartment(w http.ResponseWriter, r *http.Request,
 }
 
 func (f frontendServer) EditDepartment(w http.ResponseWriter, r *http.Request, departmentId int) {
-	//TODO implement me
-	panic("implement me")
+	network.WrapWithBody(f.authRequestService, w, r, func(info network.RequestInfo, request frontendapi.DepartmentRequest) {
+		err := f.departmentService.EditDepartment(r.Context(), departmentId, mapper.MapDepartmentRequest(request))
+
+		if errors.Is(err, department.NotFound) {
+			w.WriteHeader(http.StatusNotFound)
+			return
+		}
+
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+	})
 }
 
 func (f frontendServer) GetEmployees(w http.ResponseWriter, r *http.Request) {
@@ -171,7 +182,6 @@ func (f frontendServer) CreateEmployee(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
-
 	})
 }
 
@@ -243,6 +253,18 @@ func (f frontendServer) DeleteEmployee(w http.ResponseWriter, r *http.Request) {
 }
 
 func (f frontendServer) EditEmployee(w http.ResponseWriter, r *http.Request, employeeId int) {
-	//TODO implement me
-	panic("implement me")
+	network.WrapWithBody(f.authRequestService, w, r, func(info network.RequestInfo, request frontendapi.EmployeeRequest) {
+		err := f.accountService.EditEmployee(r.Context(), employeeId, mapper.MapEmployeeRequest(request))
+
+		if errors.Is(err, employeeaccount.EmployeeNotFound) {
+			w.WriteHeader(http.StatusNotFound)
+			return
+		}
+
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+	})
+
 }
