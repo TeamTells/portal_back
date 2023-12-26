@@ -73,7 +73,7 @@ func (r repository) GetDepartment(ctx context.Context, id int) (domain.Departmen
 		       department.supervisorid, employeeaccount.firstname
 		FROM department
 		LEFT JOIN employeeaccount ON department.supervisorid = employeeaccount.id
-		LEFT JOIN department AS parentDepartment ON department.parentdepartmentid = department.id
+		LEFT JOIN department AS parentDepartment ON department.parentdepartmentid = parentDepartment.id
 		WHERE department.id = $1
 	`
 
