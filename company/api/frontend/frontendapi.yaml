@@ -129,6 +129,28 @@ paths:
           description: Forbidden
         '401':
           description: Unauthorized
+  /employee/list:
+    get:
+      operationId: GetEmployeeList
+      tags:
+        - Employee
+      description: принимает массив id, возвращает массив пользователей
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/getEmployeeListRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/getEmployeesListResponse'
+        '403':
+          description: Forbidden
+        '401':
+          description: Unauthorized
   /employee/{employeeID}:
     get:
       operationId: GetEmployee
@@ -232,6 +254,10 @@ paths:
           description: Unauthorized
 components:
   schemas:
+    getEmployeesListResponse:
+      type: array
+      items:
+        $ref: '#/components/schemas/employee'
     getAllDepartmentsResponse:
       type: object
       required:
@@ -281,6 +307,10 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/department'
+    getEmployeeListRequest:
+      type: array
+      items:
+        type: integer
     deleteEmployeeRequest:
       type: array
       items:
