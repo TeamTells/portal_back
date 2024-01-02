@@ -39,7 +39,11 @@ func InitAuthModule() (internalapi.AuthRequestService, *pgx.Conn) {
 
 	connStr := fmt.Sprintf("postgres://%s:%s@%s:5432/%s", dbUser, dbPassword, dbHost, dbName)
 
-	conn, _ := pgx.Connect(context.Background(), connStr)
+	conn, err := pgx.Connect(context.Background(), connStr)
+
+	if err != nil {
+		fmt.Printf("Error asdfasdfasdf!!!!! %s", err)
+	}
 
 	repo := sql.NewTokenStorage(conn)
 	tokenService := token.NewService(repo)
