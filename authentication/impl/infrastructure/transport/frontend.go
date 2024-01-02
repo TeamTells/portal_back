@@ -22,24 +22,24 @@ type frontendServer struct {
 func (s *frontendServer) GetSaltByLogin(w http.ResponseWriter, r *http.Request, login string) {
 	salt, err := s.authService.GetSaltByLogin(r.Context(), login)
 	if err == auth.ErrUserNotFound {
-		w.WriteHeader(http.StatusNotFound)
+		salt = "1 http.StatusNotFound"
 	} else if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
+		salt = "2 w.WriteHeader(http.StatusInternalServerError)"
 	}
 
 	resp, err := json.Marshal(frontendapi.SaltResponse{
 		Salt: &salt,
 	})
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
+		salt = "3 w.WriteHeader(http.StatusInternalServerError)"
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 
 	_, err = w.Write(resp)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-	}
+	//if err != nil {
+	//	w.WriteHeader(http.StatusInternalServerError)
+	//}
 }
 
 func (s *frontendServer) Login(w http.ResponseWriter, r *http.Request) {
