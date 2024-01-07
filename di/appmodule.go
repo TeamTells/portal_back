@@ -2,6 +2,7 @@ package di
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -11,6 +12,11 @@ import (
 
 func InitAppModule() {
 	authService, authConn := di.InitAuthModule()
+	if authConn == nil {
+		fmt.Printf("Can't connect to teamtells database")
+		return
+	}
+
 	defer authConn.Close(context.Background())
 
 	documentConnection := di2.InitDocumentModule(authService)
