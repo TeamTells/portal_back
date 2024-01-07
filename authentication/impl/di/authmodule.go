@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 	"github.com/gorilla/mux"
+	"github.com/jackc/pgx/v4/pgxpool"
 	"github.com/jackc/pgx/v5"
-	"github.com/jackc/pgx/v5/pgxpool"
 	"net/http"
 	"os"
 	"portal_back/authentication/api/frontend"
@@ -41,7 +41,7 @@ func InitAuthModule() (internalapi.AuthRequestService, *pgx.Conn) {
 
 	connStr := fmt.Sprintf("postgres://%s:%s@%s:5432/%s?sslmode=disable&pool_max_conns=10", dbUser, dbPassword, dbHost, dbName)
 
-	dbpool, err := pgxpool.New(context.Background(), connStr)
+	dbpool, err := pgxpool.Connect(context.Background(), connStr)
 	if err != nil {
 		fmt.Printf("!!!!Error asdfasdfasdf!!!!! %s", err)
 	}
