@@ -89,6 +89,9 @@ func ConnectLoop(connStr string, timeout time.Duration) (*pgx.Conn, error) {
 			if err == nil {
 				return db, nil
 			}
+			if db != nil {
+				fmt.Println("Connected???")
+			}
 			fmt.Println("Error asdfasdfasdf!!!!!")
 			fmt.Println(err)
 		}
