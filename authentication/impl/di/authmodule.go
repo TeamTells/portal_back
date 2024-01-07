@@ -43,7 +43,7 @@ func InitAuthModule() (internalapi.AuthRequestService, *pgx.Conn) {
 
 	dbpool, err := pgxpool.New(context.Background(), os.Getenv("DATABASE_URL"))
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "asdadsf Unable to create connection pool: %v\n", err)
+		fmt.Printf("!!!!Error asdfasdfasdf!!!!! %s", err)
 	}
 	defer dbpool.Close()
 
