@@ -40,7 +40,7 @@ func InitAuthModule() (internalapi.AuthRequestService, *pgx.Conn) {
 
 	connStr := fmt.Sprintf("postgres://%s:%s@%s:5431/%s?sslmode=disable", dbUser, dbPassword, dbHost, dbName)
 
-	conn, err := ConnectLoop(connStr, 30*time.Second)
+	conn, err := ConnectLoop(connStr, 5*time.Minute)
 
 	if err != nil {
 		fmt.Printf("Error asdfasdfasdf!!!!! %s", err)
