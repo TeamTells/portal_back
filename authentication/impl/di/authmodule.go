@@ -14,7 +14,6 @@ import (
 	"portal_back/authentication/impl/app/token"
 	"portal_back/authentication/impl/infrastructure/sql"
 	"portal_back/authentication/impl/infrastructure/transport"
-	"time"
 )
 
 func InitAuthModule() (internalapi.AuthRequestService, *pgx.Conn) {
@@ -40,7 +39,7 @@ func InitAuthModule() (internalapi.AuthRequestService, *pgx.Conn) {
 
 	connStr := fmt.Sprintf("postgres://%s:%s@%s:5431/%s?sslmode=disable", dbUser, dbPassword, dbHost, dbName)
 
-	conn, err := ConnectLoop(connStr, 5*time.Minute)
+	conn, err := pgx.Connect(context.Background(), connStr)
 
 	if err != nil {
 		fmt.Printf("Error asdfasdfasdf!!!!! %s", err)
@@ -72,26 +71,6 @@ func InitAuthModule() (internalapi.AuthRequestService, *pgx.Conn) {
 	http.Handle("/authorization/", r)
 
 	return authRequestService, conn
-}
-
-func ConnectLoop(connStr string, timeout time.Duration) (*pgx.Conn, error) {
-	ticker := time.NewTicker(1 * time.Second)
-	defer ticker.Stop()
-
-	timeoutExceeded := time.After(timeout)
-	for {
-		select {
-		case <-timeoutExceeded:
-			return nil, fmt.Errorf("db connection failed after %s timeout", timeout)
-
-		case <-ticker.C:
-			db, err := pgx.Connect(context.Background(), connStr)
-			fmt.Printf("db connection failed after %s timeout", timeout)
-			if err == nil {
-				return db, nil
-			}
-		}
-	}
 }
 
 func methodNotAllowedHandler() http.Handler {
