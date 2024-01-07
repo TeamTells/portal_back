@@ -43,6 +43,8 @@ func InitAuthModule() (internalapi.AuthRequestService, *pgx.Conn) {
 
 	if err != nil {
 		fmt.Printf("Error asdfasdfasdf!!!!! %s", err)
+	} else {
+		fmt.Printf("CONNECTED adsfadsfafds!!")
 	}
 
 	repo := sql.NewTokenStorage(conn)
