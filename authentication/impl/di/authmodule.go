@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/gorilla/mux"
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"net/http"
 	"os"
 	"portal_back/authentication/api/frontend"
@@ -39,6 +40,13 @@ func InitAuthModule() (internalapi.AuthRequestService, *pgx.Conn) {
 	}
 
 	connStr := fmt.Sprintf("postgres://%s:%s@%s:5432/%s?sslmode=disable&pool_max_conns=10", dbUser, dbPassword, dbHost, dbName)
+
+	dbpool, err := pgxpool.New(context.Background(), os.Getenv("DATABASE_URL"))
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "asdadsf Unable to create connection pool: %v\n", err)
+		os.Exit(1)
+	}
+	defer dbpool.Close()
 
 	conn, err := pgx.Connect(context.Background(), connStr)
 
