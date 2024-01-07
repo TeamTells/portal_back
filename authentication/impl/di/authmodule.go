@@ -3,11 +3,17 @@ package di
 import (
 	"context"
 	"fmt"
+	"github.com/gorilla/mux"
 	"github.com/jackc/pgx/v5"
-	"github.com/jackc/pgx/v5/pgxpool"
 	"net/http"
 	"os"
+	"portal_back/authentication/api/frontend"
 	"portal_back/authentication/api/internalapi"
+	"portal_back/authentication/impl/app/auth"
+	"portal_back/authentication/impl/app/authrequest"
+	"portal_back/authentication/impl/app/token"
+	"portal_back/authentication/impl/infrastructure/sql"
+	"portal_back/authentication/impl/infrastructure/transport"
 	"time"
 )
 
@@ -34,7 +40,7 @@ func InitAuthModule() (internalapi.AuthRequestService, *pgx.Conn) {
 
 	connStr := fmt.Sprintf("postgresql://%s:%s@%s:5432/%s?sslmode=disable", dbUser, dbPassword, dbHost, dbName)
 
-	conn, err := pgxpool.New(context.Background(), connStr)
+	conn, err := pgx.Connect(context.Background(), connStr)
 
 	if err != nil {
 		fmt.Printf("Error asdfasdfasdf!!!!! %s", err)
@@ -42,34 +48,30 @@ func InitAuthModule() (internalapi.AuthRequestService, *pgx.Conn) {
 		fmt.Printf("CONNECTED adsfadsfafds!!")
 	}
 
-	if conn != nil {
-		fmt.Printf("CONNECTED !!adsfadsfafds!!")
+	repo := sql.NewTokenStorage(conn)
+	tokenService := token.NewService(repo)
+
+	authRepo := sql.NewAuthRepository(conn)
+	authService := auth.NewService(authRepo, tokenService)
+	server := transport.NewServer(authService, tokenService)
+	authRequestService := authrequest.NewService()
+
+	router := mux.NewRouter()
+	router.MethodNotAllowedHandler = methodNotAllowedHandler()
+
+	options := frontendapi.GorillaServerOptions{
+		BaseRouter: router,
+		Middlewares: []frontendapi.MiddlewareFunc{func(handler http.Handler) http.Handler {
+			return http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				setCorsHeaders(w)
+				handler.ServeHTTP(w, r)
+			}))
+		}},
 	}
+	r := frontendapi.HandlerWithOptions(server, options)
+	http.Handle("/authorization/", r)
 
-	//repo := sql.NewTokenStorage(conn)
-	//tokenService := token.NewService(repo)
-	//
-	//authRepo := sql.NewAuthRepository(conn)
-	//authService := auth.NewService(authRepo, tokenService)
-	//server := transport.NewServer(authService, tokenService)
-	//authRequestService := authrequest.NewService()
-	//
-	//router := mux.NewRouter()
-	//router.MethodNotAllowedHandler = methodNotAllowedHandler()
-	//
-	//options := frontendapi.GorillaServerOptions{
-	//	BaseRouter: router,
-	//	Middlewares: []frontendapi.MiddlewareFunc{func(handler http.Handler) http.Handler {
-	//		return http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-	//			setCorsHeaders(w)
-	//			handler.ServeHTTP(w, r)
-	//		}))
-	//	}},
-	//}
-	//r := frontendapi.HandlerWithOptions(server, options)
-	//http.Handle("/authorization/", r)
-
-	return nil, nil
+	return authRequestService, conn
 }
 
 func ConnectLoop(connStr string, timeout time.Duration) (*pgx.Conn, error) {
