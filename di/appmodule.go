@@ -12,6 +12,7 @@ import (
 
 func InitAppModule() {
 	authService, authConn := di.InitAuthModule()
+	return
 	if authConn == nil {
 		fmt.Printf("Can't connect to teamtells database")
 		return
