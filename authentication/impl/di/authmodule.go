@@ -86,6 +86,7 @@ func ConnectLoop(connStr string, timeout time.Duration) (*pgx.Conn, error) {
 
 		case <-ticker.C:
 			db, err := pgx.Connect(context.Background(), connStr)
+			fmt.Printf("db connection failed after %s timeout", timeout)
 			if err == nil {
 				return db, nil
 			}
