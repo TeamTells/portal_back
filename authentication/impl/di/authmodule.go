@@ -90,6 +90,7 @@ func ConnectLoop(connStr string, timeout time.Duration) (*pgx.Conn, error) {
 				return db, nil
 			}
 			fmt.Println("Error asdfasdfasdf!!!!!")
+			fmt.Println(err)
 		}
 	}
 }
