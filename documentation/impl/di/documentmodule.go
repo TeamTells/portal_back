@@ -34,7 +34,7 @@ func InitDocumentModule(authRequestService internalapi.AuthRequestService) *pgx.
 		dbHost = "localhost"
 	}
 
-	connStr := fmt.Sprintf("postgres://%s:%s@%s:5431/%s", dbUser, dbPassword, dbHost, dbName)
+	connStr := fmt.Sprintf("postgres://%s:%s@%s:5431/%s?sslmode=disable", dbUser, dbPassword, dbHost, dbName)
 	conn, _ := pgx.Connect(context.Background(), connStr)
 
 	sectionRepository := sql.NewSectionRepository(conn)
