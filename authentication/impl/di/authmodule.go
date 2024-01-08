@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/gorilla/mux"
 	"github.com/jackc/pgx/v5"
+	_ "github.com/lib/pq"
 	"net/http"
 	"os"
 	"portal_back/authentication/api/frontend"
@@ -39,7 +40,7 @@ func InitAuthModule() (internalapi.AuthRequestService, *pgx.Conn) {
 		dbHost = "localhost"
 	}
 
-	connStr := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", dbHost, "5432", dbUser, dbPassword, dbName)
+	connStr := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", dbHost, 5432, dbUser, dbPassword, dbName)
 
 	db, err := psql.Open("postgres", connStr)
 	if err != nil {
