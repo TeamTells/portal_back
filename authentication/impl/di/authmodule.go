@@ -52,9 +52,10 @@ func InitAuthModule() (internalapi.AuthRequestService, *pgx.Conn) {
 		fmt.Printf("!!!!!!!!!!!!!Error asdfasdfasdf!!!!")
 	}
 
-	rows, err := db.Query("SELECT salt FROM auth_user WHERE login=$1", "test6")
+	test := "test6"
+	rows := db.QueryRowContext(context.TODO(), "SELECT salt FROM auth_user WHERE login=?", test)
 	var salt string
-	rows.Scan(&salt)
+	err = rows.Scan(&salt)
 	fmt.Printf(salt)
 
 	defer db.Close()
