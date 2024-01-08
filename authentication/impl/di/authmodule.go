@@ -48,16 +48,16 @@ func InitAuthModule() (internalapi.AuthRequestService, *pgx.Conn) {
 	} else {
 		fmt.Printf("!!!CONNECTED adsfadsfafds!!")
 	}
-	defer db.Close()
+	if db == nil {
+		fmt.Printf("!!!!!!!!!!!!!Error asdfasdfasdf!!!!")
+	}
 
-	query := `
-		SELECT salt FROM auth_user 
-        WHERE login=$1
-	`
-	rows, err := db.Query(query, "test6")
+	rows, err := db.Query("SELECT salt FROM auth_user WHERE login=$1", "test6")
 	var salt string
 	rows.Scan(&salt)
 	fmt.Printf(salt)
+
+	defer db.Close()
 
 	conn, err := pgx.Connect(context.Background(), connStr)
 
