@@ -53,9 +53,12 @@ func InitAuthModule() (internalapi.AuthRequestService, *pgx.Conn) {
 	}
 
 	test := "test6"
-	rows := db.QueryRowContext(context.TODO(), "SELECT salt FROM auth_user WHERE login=?", test)
+	rows := db.QueryRow("SELECT salt FROM auth_user WHERE login=?", test)
 	var salt string
 	err = rows.Scan(&salt)
+	if err != nil {
+		fmt.Printf("QUERY!!!!!! %s", err)
+	}
 	fmt.Printf(salt)
 
 	defer db.Close()
