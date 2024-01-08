@@ -39,11 +39,13 @@ func InitAuthModule() (internalapi.AuthRequestService, *pgx.Conn) {
 		dbHost = "localhost"
 	}
 
-	connStr := fmt.Sprintf("postgres://%s:%s@%s:5432/%s", dbUser, dbPassword, dbHost, dbName)
+	connStr := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", dbHost, "5432", dbUser, dbPassword, dbName)
 
 	db, err := psql.Open("postgres", connStr)
 	if err != nil {
 		fmt.Printf("!!!!!!!!!!!!!Error asdfasdfasdf!!!!! %s", err)
+	} else {
+		fmt.Printf("!!!CONNECTED adsfadsfafds!!")
 	}
 	defer db.Close()
 
