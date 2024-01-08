@@ -53,7 +53,7 @@ func InitAuthModule() (internalapi.AuthRequestService, *pgx.Conn) {
 	}
 
 	test := "test6"
-	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 	rows := db.QueryRowContext(ctx, "SELECT salt FROM auth_user WHERE login=?", test)
 	var salt string
@@ -65,7 +65,7 @@ func InitAuthModule() (internalapi.AuthRequestService, *pgx.Conn) {
 
 	defer db.Close()
 
-	ctx2, cancel2 := context.WithTimeout(context.Background(), 2*time.Second)
+	ctx2, cancel2 := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel2()
 	conn, err := pgx.Connect(ctx2, connStr)
 
