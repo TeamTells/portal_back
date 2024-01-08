@@ -2,6 +2,7 @@ package di
 
 import (
 	"context"
+	psql "database/sql"
 	"fmt"
 	"github.com/gorilla/mux"
 	"github.com/jackc/pgx/v5"
@@ -39,6 +40,12 @@ func InitAuthModule() (internalapi.AuthRequestService, *pgx.Conn) {
 	}
 
 	connStr := fmt.Sprintf("postgres://%s:%s@%s:5432/%s", dbUser, dbPassword, dbHost, dbName)
+
+	db, err := psql.Open("postgres", connStr)
+	if err != nil {
+		fmt.Printf("!!!!!!!!!!!!!Error asdfasdfasdf!!!!! %s", err)
+	}
+	defer db.Close()
 
 	conn, err := pgx.Connect(context.Background(), connStr)
 
